@@ -171,16 +171,17 @@ input[type=range]::-moz-range-thumb{
 }
 
 /* Upload */
-.upload-zone{
-  border:1px dashed var(--line);
-  padding:22px 16px;text-align:center;cursor:pointer;
-  position:relative;transition:all 0.3s ease;
-  background:transparent;
-}
 .upload-zone:hover,.upload-zone.drag{
   border-color:var(--amber);
   background:var(--amber-glow);
   transform:scale(1.01);
+  transition:all 0.3s cubic-bezier(0.25,1,0.5,1);
+}
+.upload-zone{
+  border:1px dashed var(--line);
+  padding:22px 16px;text-align:center;cursor:pointer;
+  position:relative;transition:all 0.3s cubic-bezier(0.25,1,0.5,1);
+  background:transparent;
 }
 .upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
 .uz-icon{margin-bottom:8px;opacity:0.4;transition:opacity 0.3s}
@@ -226,14 +227,14 @@ input[type=range]::-moz-range-thumb{
   gap:14px;
   border:1px solid var(--line);
   min-height:440px;position:relative;overflow:hidden;
-  transition:border-color 0.3s, transform 0.3s ease;
+  transition:border-color 0.3s, transform 0.3s cubic-bezier(0.25,1,0.5,1);
 }
 .empty-state.drag-over{
   border-color:var(--amber);
   transform:scale(1.005);
   background:var(--amber-glow);
 }
-.empty-icon{opacity:0.15;transition:opacity 0.3s}
+.empty-icon{opacity:0.15;transition:opacity 0.3s cubic-bezier(0.25,1,0.5,1)}
 .empty-state.drag-over .empty-icon{opacity:0.35}
 .empty-text{
   font-family:var(--font-cn);font-size:14px;color:var(--text-sub);
@@ -397,31 +398,82 @@ footer{
 .zoom-bg.open{display:flex}
 .zoom-bg img{max-width:95vw;max-height:95vh}
 
+/* ── MOBILE SAVE OVERLAY ──── */
+.mobile-save-overlay{
+  display:none;position:fixed;inset:0;z-index:5000;
+  background:rgba(0,0,0,0.92);flex-direction:column;
+  align-items:center;justify-content:center;gap:20px;
+}
+.mobile-save-overlay.active{display:flex}
+.mobile-save-overlay img{
+  max-width:92vw;max-height:78vh;
+  border:1px solid var(--line);
+  box-shadow:0 4px 32px rgba(0,0,0,0.6);
+}
+.mobile-save-hint{
+  font-family:var(--font-cn);font-size:14px;color:var(--text);
+  letter-spacing:0.08em;text-align:center;line-height:1.8;
+}
+.mobile-save-hint span{
+  display:block;font-family:var(--font-mono);
+  font-size:10px;color:var(--text-sub);letter-spacing:0.12em;
+}
+.mobile-save-close{
+  padding:10px 28px;background:var(--amber);color:var(--ink);border:none;
+  font-family:var(--font-mono);font-size:11px;letter-spacing:0.12em;
+  cursor:pointer;
+}
+
 /* ── RESPONSIVE ───────────── */
 @media(max-width:768px){
-  .app{grid-template-columns:1fr}
-  .sidebar{border-right:none;border-bottom:1px solid var(--line);max-height:none}
-  .stage{padding:16px}
-  header{padding:0 16px}
+  html,body{overflow:hidden;height:100vh;position:fixed;inset:0}
+  .app{
+    display:flex;flex-direction:column;
+    height:100vh;min-height:100vh;
+    overflow:hidden;
+  }
+  header{height:44px;padding:0 14px;flex-shrink:0}
   .hd-tag{display:none}
+  .hd-brand{font-size:16px}
+  .hd-dot{width:6px;height:6px}
 
-  .sb-section{padding:14px 16px}
-  .params{gap:10px}
+  .stage{
+    height:55vh;flex-shrink:0;
+    padding:10px;gap:8px;
+    overflow:hidden;
+  }
+  .empty-state{min-height:auto;height:100%}
+  .viewer{max-width:100%;flex:1}
+  .comparison{flex:1;display:flex;align-items:center}
+  .comparison canvas{object-fit:contain;max-height:52vh}
+
+  .sidebar{
+    height:45vh;flex-shrink:0;
+    border-right:none;border-top:1px solid var(--line);
+    overflow-y:auto;-webkit-overflow-scrolling:touch;
+  }
+  .sb-section{padding:12px 16px}
+  .params{gap:8px}
   .mode-cards{flex-direction:row;overflow-x:auto;gap:6px}
-  .mode-card{min-width:140px;flex-shrink:0;padding:10px 12px}
+  .mode-card{min-width:130px;flex-shrink:0;padding:10px 12px}
   .mc-name{font-size:13px}
 
-  input[type=range]{height:3px}
-  input[type=range]::-webkit-slider-thumb{width:20px;height:20px}
-  input[type=range]::-moz-range-thumb{width:20px;height:20px}
+  input[type=range]{height:4px;margin:4px 0}
+  input[type=range]::-webkit-slider-thumb{width:24px;height:24px}
+  input[type=range]::-moz-range-thumb{width:24px;height:24px}
+  .param{padding:2px 0}
+  .param-name{font-size:12px}
+  .param-val{font-size:13px;min-width:30px}
 
-  .param-name{font-size:11px}
-  .param-val{font-size:12px}
-
-  .upload-zone{padding:20px 14px}
+  .upload-zone{padding:16px 14px}
   .export-row{flex-direction:column;align-items:stretch}
-  .ex-select,.ex-btn{width:100%;text-align:center}
+  .ex-select,.ex-btn{padding:12px;width:100%;text-align:center;font-size:11px}
   .wm-toggle{justify-content:center}
+
+  /* Hide footer on mobile */
+  footer{display:none}
+  .proc-overlay .po-title{font-size:10px}
+  .proc-overlay .po-step{font-size:8px}
 }
 </style>
 </head>
@@ -645,6 +697,12 @@ footer{
 
 <div class="zoom-bg" id="zoomBg"><img id="zoomImg" alt=""></div>
 
+<div class="mobile-save-overlay" id="mobileSaveOverlay">
+  <img id="mobileSaveImg" alt="">
+  <div class="mobile-save-hint">长按图片保存到相册<span>Long press to save to gallery</span></div>
+  <button class="mobile-save-close" id="mobileSaveClose">关闭</button>
+</div>
+
 <script>
 'use strict';
 
@@ -658,6 +716,7 @@ const clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
 const clamp01=v=>Math.max(0,Math.min(1,v));
 const lerp=(a,b,t)=>a+(b-a)*t;
 function smoothstep(e0,e1,x){const t=clamp01((x-e0)/(e1-e0));return t*t*(3-2*t)}
+const isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)||window.innerWidth<768;
 
 /* ── Watermark toggle ─────────── */
 (function(){
@@ -796,7 +855,8 @@ async function stepOverlay(idx){
   for(let i=0;i<idx;i++){
     if(steps[i]){steps[i].classList.add('done');steps[i].style.opacity='1'}
   }
-  await sleep(350);
+  // 人为注入暗房冲洗时间阻尼，让仪式感动效充分展示
+  await sleep(550 + Math.random() * 200);
 }
 
 /* ── Comparison ───────────────── */
@@ -846,6 +906,16 @@ function updateDiv(){
     bg.classList.add('open');
   });
   bg.addEventListener('click',()=>bg.classList.remove('open'));
+})();
+
+/* ── Mobile Save ────────────── */
+(function(){
+  $('mobileSaveClose').addEventListener('click',()=>{
+    $('mobileSaveOverlay').classList.remove('active');
+  });
+  $('mobileSaveOverlay').addEventListener('click',function(e){
+    if(e.target===this)this.classList.remove('active');
+  });
 })();
 
 /* ── ALGORITHMS ──────────────── */
@@ -962,7 +1032,8 @@ $('dlBtn').addEventListener('click',async()=>{
   const prog=$('progBar'),fill=$('progFill'),pt=$('procText');
   prog.style.display='block';fill.style.width='0%';pt.classList.add('show');
 
-  pt.textContent='Preparing export...';await sleep(400);fill.style.width='30%';
+  // 暗房冲洗阻尼: 让导出亦有仪式感
+  pt.textContent='Preparing film matrix...';await sleep(600+Math.random()*300);fill.style.width='25%';
 
   let ow=hc.width,oh=hc.height;
   if(res==='1080p'){const s=1920/Math.max(ow,oh);ow=Math.round(ow*s);oh=Math.round(oh*s)}
@@ -975,28 +1046,37 @@ $('dlBtn').addEventListener('click',async()=>{
 
   ectx.drawImage(hc,0,0,ow,oh);
 
-  if(res!=='original'){pt.textContent='Applying output sharpening...';await sleep(300);applyUSM(ectx,ow,oh)}
+  if(res!=='original'){pt.textContent='Applying output sharpening...';await sleep(500);applyUSM(ectx,ow,oh)}
 
   if(watermarkOn){
-    pt.textContent='Rendering watermark...';await sleep(200);
+    pt.textContent='Rendering watermark border...';await sleep(400);
     drawWatermark(ectx,ow,oh,wmH);
   }
 
-  fill.style.width='80%';pt.textContent='Encoding...';await sleep(300);
+  fill.style.width='70%';pt.textContent='Encoding silver halide...';await sleep(500+Math.random()*300);
+  fill.style.width='90%';
 
   let mime='image/jpeg',ext='jpg';
   if(fmt==='png'){mime='image/png';ext='png'}
   if(fmt==='webp'){mime='image/webp';ext='webp'}
 
   const blob=await new Promise(r=>ec.toBlob(r,mime,0.98));
-  fill.style.width='100%';pt.textContent='Complete';await sleep(500);
+  fill.style.width='100%';pt.textContent='Complete';await sleep(400);
   prog.style.display='none';pt.classList.remove('show');
 
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');
-  a.href=url;a.download=`yingdiao_${mode}_${Date.now()}.${ext}`;
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  setTimeout(()=>URL.revokeObjectURL(url),1000);
+  // 移动端: 弹全屏浮层让用户长按保存
+  if(isMobile){
+    const url=URL.createObjectURL(blob);
+    $('mobileSaveImg').src=url;
+    $('mobileSaveOverlay').classList.add('active');
+    setTimeout(()=>URL.revokeObjectURL(url),60000);
+  }else{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=`yingdiao_${mode}_${Date.now()}.${ext}`;
+    document.body.appendChild(a);a.click();document.body.removeChild(a);
+    setTimeout(()=>URL.revokeObjectURL(url),1000);
+  }
 });
 
 function drawWatermark(ctx,w,h,bh){
