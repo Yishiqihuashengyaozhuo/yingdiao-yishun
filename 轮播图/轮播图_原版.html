@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>网页轮播图 - 姚卓</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            min-height: 100vh;
+            font-family: "Microsoft YaHei", sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            text-align: center;
+            padding: 28px 0 10px;
+            color: #fff;
+            font-size: 26px;
+            font-weight: 400;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+        h1 span { color: #64b5f6; font-weight: 700; }
+        .carousel {
+            position: relative;
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+            margin: 10px auto;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        .carousel::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            pointer-events: none;
+            z-index: 2;
+            border-radius: 16px;
+            box-shadow: inset 0 0 80px rgba(0,0,0,0.6), inset 0 0 20px rgba(0,0,0,0.3);
+        }
+        .carousel-track {
+            display: flex;
+            gap: 18px;
+            padding: 24px 40px;
+            transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+        .carousel-track .item {
+            flex: 0 0 calc(25% - 14px);
+            height: 420px;
+            border-radius: 12px;
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+            transition: transform 0.4s ease, box-shadow 0.4s ease;
+        }
+        .carousel-track .item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 45px rgba(0,0,0,0.6);
+        }
+        .carousel-track .item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .carousel-track .item:hover img {
+            transform: scale(1.06);
+        }
+        .btn-group {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            padding: 30px 0 50px;
+        }
+        .btn-group button {
+            padding: 12px 40px;
+            font-size: 16px;
+            color: #fff;
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 30px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            backdrop-filter: blur(10px);
+            transition: all 0.35s ease;
+        }
+        .btn-group button:hover {
+            background: rgba(255,255,255,0.18);
+            border-color: #64b5f6;
+            color: #64b5f6;
+            box-shadow: 0 0 30px rgba(100,181,246,0.2);
+            transform: translateY(-2px);
+        }
+        .btn-group button:active {
+            transform: scale(0.96);
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        h1, .carousel, .btn-group {
+            animation: fadeIn 0.8s ease forwards;
+        }
+        .carousel { animation-delay: 0.2s; opacity: 0; }
+        .btn-group { animation-delay: 0.4s; opacity: 0; }
+    </style>
+</head>
+<body>
+    <h1>学号：<span>2024060100</span> &nbsp; 姓名：<span>姚卓</span></h1>
+    <div class="carousel" id="carousel">
+        <div class="carousel-track" id="track">
+            <div class="item"><img src="001.jpg" alt="图片1"></div>
+            <div class="item"><img src="002.jpg" alt="图片2"></div>
+            <div class="item"><img src="003.jpg" alt="图片3"></div>
+            <div class="item"><img src="004.jpg" alt="图片4"></div>
+            <div class="item"><img src="001.jpg" alt="图片1"></div>
+            <div class="item"><img src="002.jpg" alt="图片2"></div>
+            <div class="item"><img src="003.jpg" alt="图片3"></div>
+            <div class="item"><img src="004.jpg" alt="图片4"></div>
+        </div>
+    </div>
+    <div class="btn-group">
+        <button onclick="manualScroll(-1)">&#9664; 向左走</button>
+        <button onclick="manualScroll(1)">向右走 &#9654;</button>
+    </div>
+    <script>
+        var track = document.getElementById("track");
+        var singleSetWidth = 0;
+        var pos = 0;
+        var timer = null;
+        var speed = 0.8;
+        function calcSingleSetWidth() {
+            var gap = 18;
+            singleSetWidth = (track.querySelector(".item").offsetWidth + gap) * 4;
+        }
+        function autoPlay() {
+            calcSingleSetWidth();
+            pos -= speed;
+            if (Math.abs(pos) >= singleSetWidth) pos = 0;
+            track.style.transform = "translateX(" + pos + "px)";
+        }
+        function startAuto() {
+            timer = setInterval(autoPlay, 16);
+        }
+        function stopAuto() {
+            clearInterval(timer);
+        }
+        function manualScroll(dir) {
+            stopAuto();
+            calcSingleSetWidth();
+            var step = singleSetWidth / 4;
+            pos -= dir * step;
+            if (Math.abs(pos) >= singleSetWidth) pos = 0;
+            if (pos > 0) pos = -singleSetWidth + step;
+            track.style.transform = "translateX(" + pos + "px)";
+            startAuto();
+        }
+        var carousel = document.getElementById("carousel");
+        carousel.addEventListener("mouseenter", stopAuto);
+        carousel.addEventListener("mouseleave", startAuto);
+        window.addEventListener("resize", function() {
+            calcSingleSetWidth();
+            pos = 0;
+            track.style.transform = "translateX(0px)";
+        });
+        calcSingleSetWidth();
+        startAuto();
+    </script>
+</body>
+</html>
