@@ -445,30 +445,22 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
 'use strict';
 
 /* ── AUTH SYSTEM ─────────────── */
-const AUTH_KEY='yingdiao_auth_v3';
-const TRIAL_KEY='yingdiao_trial_v3';
-const MAX_TRIAL=5;
-const VALID_CODES=['YD2026','LEICA1','FILMTONE','影调一瞬'];
-
+const _k='yd_a3',_t='yd_t3',_m=5;
+const _v=[926373733,1776754565,1953962867,3557273636];
+function _h(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=(h*0x01000193)>>>0}return h}
 function checkAuth(){
-  if(localStorage.getItem(AUTH_KEY)==='1')return true;
-  let trial=parseInt(localStorage.getItem(TRIAL_KEY)||'0');
-  if(trial>=MAX_TRIAL){
-    const code=prompt('试用次数已用完，请输入授权码：\n（购买后获取授权码）');
-    if(code&&VALID_CODES.includes(code.toUpperCase().trim())){
-      localStorage.setItem(AUTH_KEY,'1');
-      alert('授权成功！感谢购买。');
-      return true;
-    }
-    alert('授权码无效，请联系卖家获取。');
-    return false;
+  if(localStorage.getItem(_k)==='1')return true;
+  var c=parseInt(localStorage.getItem(_t)||'0');
+  if(c>=_m){
+    var p=prompt('试用次数已用完，请输入授权码：\n（购买后获取授权码）');
+    if(p&&_v.indexOf(_h(p.trim()))!==-1){localStorage.setItem(_k,'1');alert('授权成功！感谢购买。');return true}
+    alert('授权码无效，请联系卖家获取。');return false
   }
-  localStorage.setItem(TRIAL_KEY,trial+1);
-  return true;
+  localStorage.setItem(_t,c+1);return true
 }
 if(!checkAuth()){
   document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:18px;color:#888;text-align:center;padding:20px">试用已结束，请输入授权码后刷新页面。</div>';
-  throw new Error('Trial expired');
+  throw new Error('Trial expired')
 }
 
 /* ── ANTI-DEBUG ──────────────── */
