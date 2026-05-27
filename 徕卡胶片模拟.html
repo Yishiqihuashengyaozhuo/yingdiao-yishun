@@ -25,8 +25,8 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;-webkit-font-smoothing:antialiased;touch-action:manipulation}
-body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s;touch-action:pan-y}
 ::selection{background:var(--red);color:#fff}
 
 /* ═════════════════════ HEADER ═════════════════════ */
@@ -100,7 +100,7 @@ main{padding-top:56px}
 .workspace{display:none;padding-bottom:48px}
 .workspace.active{display:block}
 
-.ws-preview{position:relative;width:100%;margin:0 auto;max-width:900px}
+.ws-preview{position:relative;width:100%;margin:0 auto;max-width:900px;touch-action:none}
 .ws-preview canvas{display:block;width:100%;border-radius:16px}
 .ws-orig{border:1px solid var(--border);border-radius:16px;overflow:hidden}
 .ws-proc-wrap{
@@ -179,6 +179,18 @@ main{padding-top:56px}
   border-radius:8px;border:1px solid var(--border);
 }
 .btn-ghost:hover{color:var(--text);border-color:var(--border-on)}
+.btn-sm{height:36px;font-size:12px;padding:0 12px}
+
+/* Control inputs */
+.ctrl-input{
+  background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:8px 12px;border-radius:8px;font-size:12px;outline:none;
+  transition:border-color 0.2s;
+}
+.ctrl-input:focus{border-color:var(--red)}
+
+/* Comparison buttons */
+.cmp-btns{display:flex;justify-content:center;gap:8px;margin-top:12px}
 
 /* Progress */
 .prog{height:2px;background:var(--track);overflow:hidden;display:none;border-radius:1px;margin-top:24px;max-width:640px;margin-left:auto;margin-right:auto}
@@ -203,7 +215,7 @@ main{padding-top:56px}
 /* Modals */
 .zoom-bg{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;cursor:zoom-out}
 .zoom-bg.open{display:flex}.zoom-bg img{max-width:94vw;max-height:94vh;border-radius:4px}
-.save-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.94);flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.save-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.94);flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px}
 .save-overlay.active{display:flex}
 .save-overlay img{max-width:92vw;max-height:74vh;border-radius:8px}
 .save-hint{font-size:15px;color:var(--text);text-align:center;line-height:1.8}
@@ -260,9 +272,12 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.20);box-shadow:
   .controls .spacer{display:none}
   .ex-select{width:100%;height:48px;font-size:14px;padding:12px 14px}
   .wm-label{justify-content:center;height:48px;font-size:14px}
-  #wmText,#customSize{width:100%;height:48px;font-size:14px;padding:12px 14px}
+  .ctrl-input{width:100%;height:48px;font-size:14px;padding:12px 14px}
   .btn-ghost{height:48px;font-size:14px}
   .btn-primary{height:52px;font-size:16px}
+  .btn-sm{height:44px;font-size:13px}
+  .cmp-btns{gap:12px}
+  .cmp-btns .btn-sm{flex:1}
 
   /* slider thumb: bigger for touch */
   input[type=range]::-webkit-slider-thumb{width:26px;height:26px}
@@ -277,10 +292,15 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.20);box-shadow:
   /* preset panel */
   #presetPanel{padding:12px}
 
-  /* save overlay */
-  .save-overlay img{max-width:96vw;max-height:68vh}
+  /* overlays */
+  .save-overlay img{max-width:96vw;max-height:60vh}
   .save-hint{font-size:14px}
   .save-hint small{font-size:12px}
+  .proc-step{font-size:13px}
+
+  /* preset panel */
+  #presetPanel{padding:12px;margin-top:12px}
+  #presetList{max-height:160px}
 
   footer{flex-direction:column;text-align:center;gap:8px}
   footer .spacer{display:none}
@@ -385,9 +405,9 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
     </div>
 
     <!-- COMPARISON MODE -->
-    <div style="display:flex;justify-content:center;gap:8px;margin-top:12px">
-      <button class="btn btn-ghost active" id="cmpSlider" style="height:32px;font-size:11px;padding:0 12px;border-color:var(--red)">滑动对比</button>
-      <button class="btn btn-ghost" id="cmpSide" style="height:32px;font-size:11px;padding:0 12px">并排对比</button>
+    <div class="cmp-btns">
+      <button class="btn btn-ghost btn-sm active" id="cmpSlider" style="border-color:var(--red)">滑动对比</button>
+      <button class="btn btn-ghost btn-sm" id="cmpSide">并排对比</button>
     </div>
 
     <!-- INTENSITY -->
@@ -419,7 +439,7 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
         <option value="1080p">1080P (1920px)</option>
         <option value="custom">自定义尺寸</option>
       </select>
-      <input type="number" id="customSize" placeholder="最大边长px" style="display:none;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;width:100px;outline:none">
+      <input type="number" id="customSize" placeholder="最大边长px" class="ctrl-input" style="display:none">
       <select class="ex-select" id="fmtSelect">
         <option value="jpeg">JPG</option>
         <option value="png">PNG</option>
@@ -431,7 +451,7 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
         <option value="0.85">压缩</option>
       </select>
       <label class="wm-label" id="wmToggle"><div class="wm-track" id="wmTrack"><div class="wm-knob"></div></div>水印边框</label>
-      <input type="text" id="wmText" placeholder="自定义水印文字" style="display:none;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;width:120px;outline:none">
+      <input type="text" id="wmText" placeholder="自定义水印文字" class="ctrl-input" style="display:none">
       <span class="spacer"></span>
       <button class="btn btn-ghost" id="toggleParams">调色参数 ▸</button>
       <button class="btn btn-ghost" id="savePresetBtn" style="height:40px;font-size:12px">保存预设</button>
@@ -443,14 +463,14 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
         <span style="font-size:13px;color:var(--text);font-weight:500">我的预设</span>
         <span style="flex:1"></span>
-        <button class="btn btn-ghost" id="exportPresets" style="height:32px;font-size:11px;padding:0 10px">导出JSON</button>
-        <button class="btn btn-ghost" id="importPresets" style="height:32px;font-size:11px;padding:0 10px">导入JSON</button>
+        <button class="btn btn-ghost btn-sm" id="exportPresets">导出JSON</button>
+        <button class="btn btn-ghost btn-sm" id="importPresets">导入JSON</button>
         <input type="file" id="presetFileInput" accept=".json" style="display:none">
       </div>
       <div id="presetList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
       <div style="margin-top:10px;display:flex;gap:8px">
-        <input type="text" id="presetName" placeholder="预设名称" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:12px;outline:none">
-        <button class="btn btn-ghost" id="savePresetConfirm" style="height:36px;font-size:12px;padding:0 12px">保存</button>
+        <input type="text" id="presetName" placeholder="预设名称" class="ctrl-input" style="flex:1">
+        <button class="btn btn-ghost" id="savePresetConfirm" style="height:44px;font-size:13px;padding:0 16px">保存</button>
       </div>
     </div>
   </div>
@@ -470,7 +490,7 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
 <div class="save-overlay" id="saveOverlay">
   <img id="saveImg" alt="">
   <div class="save-hint">长按图片保存到相册<small>Long press to save</small></div>
-  <button class="btn btn-secondary" id="saveClose">关闭</button>
+  <button class="btn btn-secondary" id="saveClose" style="height:48px;padding:0 32px;font-size:15px">关闭</button>
 </div>
 
 <div class="proc-overlay" id="procOverlay">
@@ -508,6 +528,7 @@ if(!checkAuth()){
 
 /* ── ANTI-DEBUG ──────────────── */
 (function(){
+  if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))return;
   const threshold=160;
   let devtools=false;
   const detect=()=>{
@@ -625,7 +646,7 @@ let showPresetPanel=false;
 $('savePresetBtn').addEventListener('click',()=>{
   showPresetPanel=!showPresetPanel;
   $('presetPanel').style.display=showPresetPanel?'block':'none';
-  if(showPresetPanel)renderPresetList();
+  if(showPresetPanel){renderPresetList();$('presetPanel').scrollIntoView({behavior:'smooth',block:'nearest'})}
 });
 
 function getCurrentParams(){
@@ -655,11 +676,11 @@ function renderPresetList(){
   list.innerHTML='';
   presets.forEach((p,i)=>{
     const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;cursor:pointer';
-    row.innerHTML=`<span style="flex:1;font-size:12px;color:var(--text)">${p.name}</span><span style="font-size:10px;color:var(--t3)">${p.mode}</span>`;
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg);border-radius:8px;cursor:pointer;min-height:44px';
+    row.innerHTML=`<span style="flex:1;font-size:13px;color:var(--text)">${p.name}</span><span style="font-size:11px;color:var(--t3)">${p.mode}</span>`;
     row.addEventListener('click',()=>applyPreset(p));
     const delBtn=document.createElement('button');
-    delBtn.textContent='×';delBtn.style.cssText='background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 4px';
+    delBtn.textContent='×';delBtn.style.cssText='background:none;border:none;color:var(--t3);cursor:pointer;font-size:18px;padding:0 8px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center';
     delBtn.addEventListener('click',e=>{e.stopPropagation();presets.splice(i,1);localStorage.setItem(PRESET_KEY,JSON.stringify(presets));renderPresetList()});
     row.appendChild(delBtn);
     list.appendChild(row);
@@ -853,6 +874,7 @@ function showWorkspace(){
   $('workspace').classList.add('active');
   $('intensityBar').style.display='flex';
   updateImgInfo();
+  $('workspace').scrollIntoView({behavior:'smooth',block:'start'});
 }
 function updateImgInfo(){
   if(!srcImg)return;
@@ -898,7 +920,7 @@ function updateDiv(){
     $('zoomBg').classList.add('open');
   });
 })();
-$('zoomBg').addEventListener('click',()=>$('zoomBg').classList.remove('open'));
+$('zoomBg').addEventListener('click',e=>{e.preventDefault();$('zoomBg').classList.remove('open')});
 
 /* ── COMPARISON MODE ─────────── */
 let cmpMode='slider';
