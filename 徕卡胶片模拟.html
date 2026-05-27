@@ -246,9 +246,9 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.20);box-shadow:
   .btn-primary,.btn-secondary{width:100%;height:52px;justify-content:center;font-size:16px}
 
   /* mode cards: horizontal scroll */
-  .mode-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 12px;gap:10px;scrollbar-width:none}
+  .mode-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 16px 12px;gap:10px;scrollbar-width:none}
   .mode-row::-webkit-scrollbar{display:none}
-  .mode-card{min-width:130px;max-width:none;flex:0 0 auto;padding:12px 14px}
+  .mode-card{min-width:140px;max-width:none;flex:0 0 auto;padding:12px 14px}
   .mc-name{font-size:14px}
 
   .upload-wrap{margin-top:32px}
@@ -798,20 +798,20 @@ async function fullProcess(){
     hc.width=srcImg.naturalWidth;hc.height=srcImg.naturalHeight;
     ctx.drawImage(srcImg,0,0);
 
-    await stepOverlay(0);
+    await stepOverlay(0);await sleep(0);
     const origId=ctx.getImageData(0,0,hc.width,hc.height);
-    await stepOverlay(1);
+    await stepOverlay(1);await sleep(0);
     const processors={bw:applyBW,ccd:applyCCD,m10:applyM10,q:applyQ,portra:applyPortra,ektar:applyEktar};
     (processors[mode]||applyCCD)(origId.data,hc.width,hc.height);
     ctx.putImageData(origId,0,0);
-    await stepOverlay(2);
-    applyClarity(ctx,hc.width,hc.height);
-    applyUSM(ctx,hc.width,hc.height);
+    await stepOverlay(2);await sleep(0);
+    applyClarity(ctx,hc.width,hc.height);await sleep(0);
+    applyUSM(ctx,hc.width,hc.height);await sleep(0);
     applyVignette(ctx,hc.width,hc.height);
-    await stepOverlay(3);
+    await stepOverlay(3);await sleep(0);
 
     procData={orig:origId,proc:ctx.getImageData(0,0,hc.width,hc.height)};
-    await stepOverlay(4);
+    await stepOverlay(4);await sleep(0);
     hideProcOverlay();
     showWorkspace();
     blendToPreview();
