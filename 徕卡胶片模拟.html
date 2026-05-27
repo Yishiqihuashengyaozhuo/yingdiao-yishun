@@ -347,7 +347,7 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
         上传照片
       </button>
-      <input type="file" id="fileInput" accept="image/jpeg,image/png,image/webp" style="display:none">
+      <input type="file" id="fileInput" accept="image/*" style="display:none">
       <button class="btn btn-secondary" id="resetBtn" disabled>重置参数</button>
     </div>
 
@@ -389,7 +389,7 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
   <!-- UPLOAD -->
   <div class="upload-wrap" id="uploadWrap">
     <div class="upload-zone" id="uploadZone">
-      <input type="file" id="fileInput2" accept="image/jpeg,image/png,image/webp">
+      <input type="file" id="fileInput2" accept="image/*">
       <svg class="uz-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
       <div class="uz-title">拖入照片或点击上传</div>
       <div class="uz-sub">支持 JPG / PNG / WEBP · 纯本地处理</div>
@@ -753,9 +753,7 @@ document.addEventListener('paste',e=>{
 });
 
 function loadFile(file){
-  if(!file||!file.type||!file.type.startsWith('image/')){
-    alert('请选择 JPG / PNG / WEBP 格式的图片文件。');return;
-  }
+  if(!file){return}
   $('heroUploadBtn').textContent='加载中...';
   const reader=new FileReader();
   reader.onload=ev=>{
