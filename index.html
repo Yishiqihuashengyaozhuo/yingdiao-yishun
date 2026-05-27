@@ -3,10 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>影调一瞬 · 在线徕卡模拟器</title>
+<title>影调一瞬 · 创意工具集</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
-   DESIGN SYSTEM · 影调一瞬 v2.1
+   DESIGN SYSTEM · 影调一瞬 Portfolio
    ═══════════════════════════════════════════════════ */
 :root{
   --bg:#000;--bg2:#1C1C1E;--glass:rgba(28,28,30,0.72);
@@ -14,7 +17,7 @@
   --border:rgba(255,255,255,0.10);--border-on:rgba(255,255,255,0.16);
   --red:#D50032;--red-h:#E01040;--red-p:#C00028;--red-glow:rgba(213,0,50,0.20);
   --track:#3A3A3C;
-  --en:'SF Pro',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --en:'Inter','SF Pro',-apple-system,sans-serif;
   --cn:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;
   --ease:cubic-bezier(0.16,1,0.3,1);
 }
@@ -26,8 +29,9 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-font-smoothing:antialiased}
-body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s}
+body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s;overflow-x:hidden}
 ::selection{background:var(--red);color:#fff}
+a{text-decoration:none;color:inherit}
 
 /* ═════════════════════ HEADER ═════════════════════ */
 header{
@@ -42,6 +46,9 @@ header{
 .hd-name{font-family:var(--cn);font-size:17px;font-weight:600;letter-spacing:-0.3px;color:var(--text)}
 .hd-sub{font-family:var(--en);font-size:10px;color:var(--t3);letter-spacing:-0.2px;margin-left:4px}
 .hd-spacer{flex:1}
+.hd-links{display:flex;gap:20px;align-items:center}
+.hd-links a{font-size:13px;color:var(--t2);transition:color 0.2s;font-weight:500}
+.hd-links a:hover{color:var(--text)}
 .hd-theme{
   width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
   background:transparent;color:var(--t2);cursor:pointer;
@@ -50,1059 +57,360 @@ header{
 }
 .hd-theme:hover{border-color:var(--border-on);color:var(--text)}
 
-/* ═════════════════════ MAIN ═════════════════════ */
-main{padding-top:56px}
-
-.container{max-width:960px;margin:0 auto;padding:0 24px}
-
-/* ── HERO ────────────────────── */
+/* ═════════════════════ HERO ═════════════════════ */
 .hero{
-  text-align:center;padding:80px 0 48px;
-  animation:fadeUp 0.6s var(--ease) both;
+  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 24px 0;text-align:center;position:relative;
 }
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-.hero-label{font-family:var(--en);font-size:12px;font-weight:500;letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:16px}
-.hero h2{font-family:var(--cn);font-size:36px;font-weight:600;letter-spacing:-0.8px;line-height:1.22;margin-bottom:12px}
-.hero p{font-size:16px;color:var(--t2);letter-spacing:-0.3px;margin-bottom:0}
-.hero-actions{display:flex;justify-content:center;gap:12px;margin-top:32px;flex-wrap:wrap}
+.hero-bg{
+  position:absolute;inset:0;overflow:hidden;pointer-events:none;
+}
+.hero-bg::before{
+  content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);
+  width:800px;height:800px;border-radius:50%;
+  background:radial-gradient(circle,rgba(213,0,50,0.12) 0%,transparent 70%);
+  animation:pulse 6s ease-in-out infinite alternate;
+}
+@keyframes pulse{from{opacity:0.5;transform:translateX(-50%) scale(0.9)}to{opacity:1;transform:translateX(-50%) scale(1.1)}}
 
-/* ── MODE CARDS ─────────────── */
-.mode-row{display:flex;justify-content:center;gap:12px;margin-top:24px;flex-wrap:wrap}
-.mode-card{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:16px;padding:14px 16px;cursor:pointer;
-  transition:all 0.2s var(--ease);text-align:left;outline:none;
-  min-width:140px;flex:1;max-width:200px;
-}
-.mode-card:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,0.2)}
-.mode-card.active{border-color:var(--red);background:var(--red-glow);box-shadow:0 0 0 1px var(--red)}
-.mc-label{font-family:var(--en);font-size:10px;font-weight:500;letter-spacing:0.4px;color:var(--red);margin-bottom:6px}
-.mc-name{font-family:var(--cn);font-size:16px;font-weight:600;letter-spacing:-0.3px;color:var(--text);margin-bottom:4px}
-.mc-desc{font-size:11px;color:var(--t3);letter-spacing:-0.2px;line-height:1.4}
+.hero-content{position:relative;z-index:1;animation:fadeUp 0.8s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 
-/* ── UPLOAD ZONE ────────────── */
-.upload-wrap{margin-top:48px;padding:0}
-.upload-zone{
-  background:var(--bg2);border:1px solid var(--border);
-  border-radius:16px;cursor:pointer;position:relative;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  gap:12px;transition:all 0.3s var(--ease);
-  aspect-ratio:4/3;max-height:480px;margin:0 auto;max-width:640px;
+.hero-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:100px;
+  background:var(--red-glow);border:1px solid rgba(213,0,50,0.3);
+  font-family:var(--en);font-size:11px;font-weight:600;
+  letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:28px;
 }
-.upload-zone:hover,.upload-zone.drag{border-color:var(--red);background:rgba(213,0,50,0.06);transform:scale(1.01)}
-.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
-.uz-icon{opacity:0.35;transition:opacity 0.3s}
-.upload-zone:hover .uz-icon{opacity:0.7}
-.uz-title{font-size:16px;color:var(--t2);letter-spacing:-0.3px}
-.uz-sub{font-size:12px;color:var(--t3);letter-spacing:-0.2px}
+.hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 2s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
 
-/* ── WORKSPACE (after upload) ── */
-.workspace{display:none;padding-bottom:48px}
-.workspace.active{display:block}
+.hero h1{
+  font-size:clamp(40px,7vw,72px);font-weight:700;
+  letter-spacing:-2px;line-height:1.08;margin-bottom:20px;
+  background:linear-gradient(135deg,var(--text) 0%,var(--t2) 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.hero p{
+  font-size:clamp(16px,2.2vw,20px);color:var(--t2);
+  letter-spacing:-0.3px;line-height:1.6;max-width:520px;margin:0 auto 40px;
+}
 
-.ws-preview{position:relative;width:100%;margin:0 auto;max-width:900px}
-.ws-preview canvas{display:block;width:100%;border-radius:16px}
-.ws-orig{border:1px solid var(--border);border-radius:16px;overflow:hidden}
-.ws-proc-wrap{
-  position:absolute;top:0;left:0;width:50%;height:100%;
-  border:1px solid var(--red);overflow:hidden;border-radius:16px 0 0 16px;
+/* ═════════════════════ PROJECTS GRID ═════════════════════ */
+.section{padding:80px 24px}
+.section-title{
+  text-align:center;margin-bottom:48px;
 }
-.ws-proc-wrap canvas{position:absolute;top:0;left:0;width:100% !important;height:100% !important;object-fit:cover}
-.ws-line{
-  position:absolute;top:0;bottom:0;width:1px;
-  background:rgba(255,255,255,0.55);left:50%;
-  pointer-events:none;z-index:5;
+.section-title h2{
+  font-size:13px;font-family:var(--en);font-weight:600;
+  letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:12px;
 }
-.ws-knob{
-  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
-  width:28px;height:28px;border-radius:50%;background:#fff;
-  box-shadow:0 2px 20px rgba(0,0,0,0.3);pointer-events:none;z-index:6;
-}
-.ws-label{
-  position:absolute;top:12px;z-index:4;
-  font-family:var(--en);font-size:9px;font-weight:500;letter-spacing:0.4px;
-  padding:4px 8px;border-radius:6px;background:rgba(0,0,0,0.55);color:#fff;
-  pointer-events:none;
-}
-.ws-label.orig{left:12px}.ws-label.proc{right:12px}
+.section-title p{font-size:28px;font-weight:600;letter-spacing:-0.6px;color:var(--text)}
 
-/* ── INTENSITY SLIDER ───────── */
-.intensity-bar{display:flex;align-items:center;gap:16px;margin-top:32px;max-width:640px;margin-left:auto;margin-right:auto}
-.intensity-label{font-family:var(--en);font-size:11px;font-weight:500;color:var(--t3);white-space:nowrap;letter-spacing:0.2px}
-.intensity-val{font-family:var(--en);font-size:12px;font-weight:600;color:var(--text);min-width:32px;text-align:right;font-variant-numeric:tabular-nums}
-.intensity-bar input[type=range]{flex:1}
-
-/* ── CONTROLS ──────────────── */
-.controls{display:flex;gap:12px;margin-top:40px;max-width:640px;margin-left:auto;margin-right:auto;flex-wrap:wrap;align-items:center}
-.controls .spacer{flex:1}
-.ex-select{
-  background:var(--bg2);border:1px solid var(--border);color:var(--text);
-  padding:10px 14px;border-radius:8px;font-family:var(--en);font-size:12px;
-  outline:none;cursor:pointer;transition:border-color 0.2s;
+.grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+  gap:20px;max-width:1080px;margin:0 auto;
 }
-.ex-select:focus{border-color:var(--red)}
-.wm-label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);cursor:pointer;user-select:none}
-.wm-track{width:40px;height:22px;border-radius:11px;background:var(--track);position:relative;transition:background 0.2s}
-.wm-track.on{background:var(--red)}
-.wm-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:left 0.2s var(--ease)}
-.wm-track.on .wm-knob{left:20px}
 
-.param-panel{display:none;margin-top:24px;max-width:640px;margin-left:auto;margin-right:auto}
-.param-panel.open{display:block}
-.param-panel-grid{display:flex;flex-direction:column;gap:14px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:20px}
-.param-row{display:flex;justify-content:space-between;align-items:center}
-.param-name{font-size:12px;color:var(--t2)}
-.param-val{font-family:var(--en);font-size:12px;font-weight:500;color:var(--text);min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+.card{
+  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;cursor:pointer;position:relative;
+  transition:all 0.35s var(--ease);
+}
+.card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 12px 40px rgba(0,0,0,0.25);
+  border-color:var(--border-on);
+}
+.card:hover .card-arrow{transform:translate(2px,-2px);opacity:1}
 
-/* Buttons */
-.btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  cursor:pointer;border:none;font-family:var(--cn);font-size:15px;font-weight:500;
-  letter-spacing:-0.3px;user-select:none;outline:none;white-space:nowrap;
-  transition:all 0.2s var(--ease);
+.card-visual{
+  height:200px;position:relative;overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
 }
-.btn:active{transform:scale(0.98)}
-.btn-primary{
-  background:var(--red);color:#fff;height:48px;padding:0 24px;
-  border-radius:12px;font-weight:600;
-  box-shadow:0 4px 16px rgba(213,0,50,0.3);
+.card-visual.v1{
+  background:linear-gradient(135deg,#1a0a0f 0%,#0d0d0d 50%,#1a0508 100%);
 }
-.btn-primary:hover{background:var(--red-h);transform:scale(1.02);box-shadow:0 6px 24px rgba(213,0,50,0.4)}
-.btn-primary:active{background:var(--red-p);transform:scale(0.98)}
-.btn-secondary{
-  background:var(--bg2);color:var(--text);height:48px;padding:0 20px;
-  border-radius:12px;border:1px solid var(--border);
+.card-visual.v2{
+  background:linear-gradient(135deg,#0a0a1a 0%,#0d0d0d 50%,#080d1a 100%);
 }
-.btn-secondary:hover{border-color:var(--border-on);transform:scale(1.02)}
-.btn-ghost{
-  background:transparent;color:var(--t2);height:40px;padding:0 16px;
-  border-radius:8px;border:1px solid var(--border);
+.card-visual.v3{
+  background:linear-gradient(135deg,#0a1a0a 0%,#0d0d0d 50%,#0d1a08 100%);
 }
-.btn-ghost:hover{color:var(--text);border-color:var(--border-on)}
 
-/* Progress */
-.prog{height:2px;background:var(--track);overflow:hidden;display:none;border-radius:1px;margin-top:24px;max-width:640px;margin-left:auto;margin-right:auto}
-.prog-fill{height:100%;background:var(--red);width:0%;transition:width 0.15s linear}
-.prog-text{text-align:center;font-family:var(--en);font-size:11px;color:var(--t3);padding:8px 0;display:none}
-.prog-text.show{display:block}
-
-/* Overlay */
-.proc-overlay{
-  display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.88);
-  flex-direction:column;align-items:center;justify-content:center;gap:28px;
+.card-visual .icon{
+  width:72px;height:72px;border-radius:18px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--glass);backdrop-filter:blur(10px);
+  border:1px solid var(--border);font-size:32px;
+  transition:transform 0.3s var(--ease);
 }
-.proc-overlay.active{display:flex}
-.proc-steps{display:flex;flex-direction:column;gap:6px;align-items:center}
-.proc-step{font-family:var(--en);font-size:12px;color:var(--t3);transition:all 0.3s}
-.proc-step.done{color:var(--t2)}.proc-step.current{color:var(--text);font-weight:500}
-.proc-dots{display:flex;gap:6px}
-.proc-dot{width:6px;height:6px;border-radius:50%;background:var(--track);animation:dotBounce 0.6s ease-in-out infinite}
-.proc-dot:nth-child(2){animation-delay:0.1s}.proc-dot:nth-child(3){animation-delay:0.2s}
-@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:0.4}50%{transform:translateY(-6px);opacity:1}}
+.card:hover .card-visual .icon{transform:scale(1.08)}
 
-/* Modals */
-.zoom-bg{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,0.95);align-items:center;justify-content:center;cursor:zoom-out}
-.zoom-bg.open{display:flex}.zoom-bg img{max-width:94vw;max-height:94vh;border-radius:4px}
-.save-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.94);flex-direction:column;align-items:center;justify-content:center;gap:20px}
-.save-overlay.active{display:flex}
-.save-overlay img{max-width:92vw;max-height:74vh;border-radius:8px}
-.save-hint{font-size:15px;color:var(--text);text-align:center;line-height:1.8}
-.save-hint small{display:block;font-size:11px;color:var(--t3)}
-
-/* Footer */
-footer{border-top:1px solid var(--border);padding:20px 24px;display:flex;align-items:center;gap:24px;font-size:12px;color:var(--t3);transition:border-color 0.4s}
-footer .spacer{flex:1}
-
-/* Slider shared */
-input[type=range]{
-  -webkit-appearance:none;appearance:none;width:100%;height:4px;
-  background:var(--track);border-radius:2px;outline:none;cursor:pointer;
+.card-visual .float-badge{
+  position:absolute;top:16px;right:16px;
+  padding:4px 10px;border-radius:100px;
+  font-family:var(--en);font-size:10px;font-weight:600;
+  letter-spacing:0.3px;
+  background:rgba(213,0,50,0.15);color:var(--red);
+  border:1px solid rgba(213,0,50,0.25);
 }
-input[type=range]::-webkit-slider-thumb{
-  -webkit-appearance:none;width:20px;height:20px;border-radius:50%;
-  background:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.2);
-  transition:transform 0.15s var(--ease),box-shadow 0.15s var(--ease);cursor:grab;
-}
-input[type=range]:active::-webkit-slider-thumb{transform:scale(1.20);box-shadow:0 2px 16px rgba(0,0,0,0.3),0 0 0 2px var(--red);cursor:grabbing}
 
-/* ── RESPONSIVE ───────────── */
-@media(max-width:767px){
-  header{padding:0 16px;height:48px}.hd-sub{display:none}.hd-name{font-size:15px}
-  .hero{padding:48px 0 32px}.hero h2{font-size:26px}.hero p{font-size:14px}
-  .hero-actions{flex-direction:column;align-items:stretch}
-  .btn-primary,.btn-secondary{width:100%;height:52px;justify-content:center}
-  .mode-card{min-width:0;flex:1 1 45%}
-  .upload-zone{max-height:280px;aspect-ratio:4/3}
-  .container{padding:0 16px}
-  .intensity-bar{flex-wrap:wrap}
-  .controls{flex-direction:column;align-items:stretch}
-  .ex-select,.wm-label,#wmText,#customSize{width:100%}
-  .wm-label{justify-content:center}
-  footer{flex-direction:column;text-align:center;gap:8px}
-  footer .spacer{display:none}
-  .ws-knob{width:36px;height:36px}
+.card-body{padding:20px 24px 24px}
+.card-tag{
+  font-family:var(--en);font-size:10px;font-weight:600;
+  letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px;
 }
-@media(min-width:768px)and(max-width:1199px){.container{max-width:720px}}
+.card-body h3{font-size:20px;font-weight:600;letter-spacing:-0.4px;margin-bottom:8px}
+.card-body p{font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:16px}
+
+.card-footer{
+  display:flex;align-items:center;justify-content:space-between;
+}
+.card-link{
+  font-family:var(--en);font-size:13px;font-weight:600;
+  color:var(--red);display:flex;align-items:center;gap:6px;
+}
+.card-arrow{
+  transition:all 0.2s var(--ease);opacity:0.6;
+}
+.card-tech{display:flex;gap:6px;flex-wrap:wrap}
+.card-tech span{
+  padding:3px 8px;border-radius:6px;font-size:11px;
+  background:var(--glass);color:var(--t3);border:1px solid var(--border);
+  font-family:var(--en);font-weight:500;
+}
+
+/* ═════════════════════ STATS BAR ═════════════════════ */
+.stats{
+  display:flex;justify-content:center;gap:48px;flex-wrap:wrap;
+  padding:40px 24px 80px;max-width:800px;margin:0 auto;
+}
+.stat{text-align:center}
+.stat-val{
+  font-family:var(--en);font-size:36px;font-weight:700;
+  letter-spacing:-1px;color:var(--text);
+}
+.stat-label{font-size:13px;color:var(--t3);margin-top:4px}
+
+/* ═════════════════════ FOOTER ═════════════════════ */
+footer{
+  padding:40px 24px;text-align:center;
+  border-top:1px solid var(--border);
+}
+footer p{font-size:13px;color:var(--t3)}
+footer a{color:var(--red);transition:opacity 0.2s}
+footer a:hover{opacity:0.7}
+
+/* ═════════════════════ RESPONSIVE ═════════════════════ */
+@media(max-width:640px){
+  .grid{grid-template-columns:1fr}
+  .hd-links{display:none}
+  .stats{gap:32px}
+  .stat-val{font-size:28px}
+}
 </style>
 </head>
 <body>
 
-<!-- SPLASH SCREEN -->
-<div id="splash" style="position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;transition:opacity 0.6s ease">
-  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.2"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="17" cy="7" r="1.5" fill="var(--red)"/></svg>
-  <div style="font-family:var(--cn);font-size:28px;font-weight:600;color:var(--text);letter-spacing:-0.5px">影调一瞬</div>
-  <div style="font-family:var(--en);font-size:12px;color:var(--t3);letter-spacing:0.5px">LEICA FILM SIMULATOR v3.0</div>
-  <div style="font-size:12px;color:var(--t3);margin-top:8px">纯本地处理 · 隐私安全 · 6种胶片风格</div>
-</div>
-<script>
-setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';setTimeout(()=>s.style.display='none',600)},1500);
-</script>
-
 <!-- HEADER -->
 <header>
   <div class="hd-logo">
-    <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="17" cy="7" r="1.5" fill="var(--red)"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><line x1="21.17" y1="8" x2="12" y2="8"/><line x1="3.95" y1="6.06" x2="8.54" y2="14"/>
+    </svg>
     <span class="hd-name">影调一瞬</span>
-    <span class="hd-sub">Leica Simulator</span>
+    <span class="hd-sub">Creative Suite</span>
   </div>
-  <span class="hd-spacer"></span>
-  <button class="hd-theme" id="themeBtn" title="切换深浅模式">◐</button>
+  <div class="hd-spacer"></div>
+  <nav class="hd-links">
+    <a href="#projects">Projects</a>
+    <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank">GitHub</a>
+  </nav>
+  <button class="hd-theme" onclick="toggleTheme()" aria-label="Toggle theme">
+    <span id="themeIcon">&#9790;</span>
+  </button>
 </header>
 
-<main>
-<div class="container">
-  <!-- HERO -->
-  <section class="hero">
-    <div class="hero-label">Film Tone Studio v3.0</div>
-    <h2>小米17 Ultra 徕卡同款色彩</h2>
-    <p>6种胶片风格 · 纯本地处理 · 隐私安全 · 支持预设保存</p>
-    <div class="hero-actions">
-      <button class="btn btn-primary" id="heroUploadBtn">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-        上传照片
-      </button>
-      <input type="file" id="fileInput" accept="image/*" style="display:none">
-      <button class="btn btn-secondary" id="resetBtn" disabled>重置参数</button>
-    </div>
-
-    <!-- MODE CARDS -->
-    <div class="mode-row">
-      <button class="mode-card active" data-mode="ccd">
-        <div class="mc-label">M9 COLOR</div>
-        <div class="mc-name">徕卡经典色彩</div>
-        <div class="mc-desc">CCD 油润感 · 暖中间调</div>
-      </button>
-      <button class="mode-card" data-mode="bw">
-        <div class="mc-label">M3 MONOCHROME</div>
-        <div class="mc-name">徕卡经典黑白</div>
-        <div class="mc-desc">银盐颗粒 · 影调深邃</div>
-      </button>
-      <button class="mode-card" data-mode="m10">
-        <div class="mc-label">M10 DIGITAL</div>
-        <div class="mc-name">徕卡现代数码</div>
-        <div class="mc-desc">高对比 · 冷色调 · 锐利</div>
-      </button>
-      <button class="mode-card" data-mode="q">
-        <div class="mc-label">Q STREET</div>
-        <div class="mc-name">徕卡街头快拍</div>
-        <div class="mc-desc">暖调柔和 · 低对比 · 街拍</div>
-      </button>
-      <button class="mode-card" data-mode="portra">
-        <div class="mc-label">PORTRA 400</div>
-        <div class="mc-name">经典人像胶片</div>
-        <div class="mc-desc">柔和暖色 · 肤色优化</div>
-      </button>
-      <button class="mode-card" data-mode="ektar">
-        <div class="mc-label">EKTAR 100</div>
-        <div class="mc-name">高饱和鲜艳</div>
-        <div class="mc-desc">浓郁色彩 · 细腻颗粒</div>
-      </button>
-    </div>
-  </section>
-
-  <!-- UPLOAD -->
-  <div class="upload-wrap" id="uploadWrap">
-    <div class="upload-zone" id="uploadZone">
-      <input type="file" id="fileInput2" accept="image/*">
-      <svg class="uz-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-      <div class="uz-title">拖入照片或点击上传</div>
-      <div class="uz-sub">支持 JPG / PNG / HEIC / WEBP · 不上传服务器</div>
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <div class="hero-badge">Open Source Creative Tools</div>
+    <h1>影调一瞬</h1>
+    <p>用光影讲述故事。<br>一套面向创作者的在线胶片模拟与视觉工具集。</p>
+    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a href="#projects" style="
+        display:inline-flex;align-items:center;gap:8px;
+        padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
+        background:var(--red);color:#fff;
+        transition:all 0.25s var(--ease);letter-spacing:-0.2px;
+      " onmouseover="this.style.background='var(--red-h)';this.style.transform='translateY(-1px)'"
+         onmouseout="this.style.background='var(--red)';this.style.transform='translateY(0)'">
+        Explore Tools
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </a>
+      <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank" style="
+        display:inline-flex;align-items:center;gap:8px;
+        padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
+        background:transparent;color:var(--text);border:1px solid var(--border);
+        transition:all 0.25s var(--ease);letter-spacing:-0.2px;
+      " onmouseover="this.style.borderColor='var(--border-on)';this.style.transform='translateY(-1px)'"
+         onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        Source Code
+      </a>
     </div>
   </div>
+</section>
 
-  <!-- WORKSPACE -->
-  <div class="workspace" id="workspace">
-    <div class="ws-preview" id="wsPreview">
-      <div class="ws-orig"><canvas id="cmpOrig"></canvas></div>
-      <div class="ws-proc-wrap" id="wsProcWrap"><canvas id="cmpAfter"></canvas></div>
-      <div class="ws-line" id="wsLine"></div>
-      <div class="ws-knob" id="wsKnob"></div>
-      <span class="ws-label orig">原图</span>
-      <span class="ws-label proc">处理后</span>
-    </div>
+<!-- PROJECTS -->
+<section class="section" id="projects">
+  <div class="section-title">
+    <h2>Projects</h2>
+    <p>创作工具集</p>
+  </div>
+  <div class="grid">
 
-    <!-- COMPARISON MODE -->
-    <div style="display:flex;justify-content:center;gap:8px;margin-top:12px">
-      <button class="btn btn-ghost active" id="cmpSlider" style="height:32px;font-size:11px;padding:0 12px;border-color:var(--red)">滑动对比</button>
-      <button class="btn btn-ghost" id="cmpSide" style="height:32px;font-size:11px;padding:0 12px">并排对比</button>
-    </div>
-
-    <!-- INTENSITY -->
-    <div class="intensity-bar" id="intensityBar">
-      <span class="intensity-label">效果强度</span>
-      <input type="range" id="intensity" min="0" max="100" value="80">
-      <span class="intensity-val" id="intensityVal">80%</span>
-    </div>
-
-    <!-- IMAGE INFO -->
-    <div id="imgInfo" style="display:none;text-align:center;margin-top:16px;font-family:var(--en);font-size:11px;color:var(--t3);letter-spacing:0.2px">
-      <span id="imgDims"></span> · <span id="imgMode"></span> · <span id="imgIntensity"></span>
-    </div>
-
-    <!-- PARAM PANEL -->
-    <div class="param-panel" id="paramPanel">
-      <div class="param-panel-grid" id="paramGrid"></div>
-    </div>
-
-    <!-- PROGRESS -->
-    <div class="prog" id="prog"><div class="prog-fill" id="progFill"></div></div>
-    <div class="prog-text" id="progText"></div>
-
-    <!-- CONTROLS -->
-    <div class="controls" id="controlsRow">
-      <select class="ex-select" id="resSelect">
-        <option value="original">原图尺寸</option>
-        <option value="2k">2K (2560px)</option>
-        <option value="1080p">1080P (1920px)</option>
-        <option value="custom">自定义尺寸</option>
-      </select>
-      <input type="number" id="customSize" placeholder="最大边长px" style="display:none;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;width:100px;outline:none">
-      <select class="ex-select" id="fmtSelect">
-        <option value="jpeg">JPG</option>
-        <option value="png">PNG</option>
-        <option value="webp">WEBP</option>
-      </select>
-      <select class="ex-select" id="qualitySelect">
-        <option value="0.98">高质量</option>
-        <option value="0.92">标准</option>
-        <option value="0.85">压缩</option>
-      </select>
-      <label class="wm-label" id="wmToggle"><div class="wm-track" id="wmTrack"><div class="wm-knob"></div></div>水印边框</label>
-      <input type="text" id="wmText" placeholder="自定义水印文字" style="display:none;background:var(--bg2);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:11px;width:120px;outline:none">
-      <span class="spacer"></span>
-      <button class="btn btn-ghost" id="toggleParams">调色参数 ▸</button>
-      <button class="btn btn-ghost" id="savePresetBtn" style="height:40px;font-size:12px">保存预设</button>
-      <button class="btn btn-primary" id="dlBtn" style="height:40px;font-size:13px">导出</button>
-    </div>
-
-    <!-- PRESET PANEL -->
-    <div id="presetPanel" style="display:none;margin-top:16px;max-width:640px;margin-left:auto;margin-right:auto;background:var(--bg2);border:1px solid var(--border);border-radius:12px;padding:16px">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-        <span style="font-size:13px;color:var(--text);font-weight:500">我的预设</span>
-        <span style="flex:1"></span>
-        <button class="btn btn-ghost" id="exportPresets" style="height:32px;font-size:11px;padding:0 10px">导出JSON</button>
-        <button class="btn btn-ghost" id="importPresets" style="height:32px;font-size:11px;padding:0 10px">导入JSON</button>
-        <input type="file" id="presetFileInput" accept=".json" style="display:none">
+    <a class="card" href="徕卡胶片模拟.html" style="animation:fadeUp 0.6s var(--ease) 0.1s both">
+      <div class="card-visual v1">
+        <div class="icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+            <circle cx="12" cy="13" r="4"/>
+          </svg>
+        </div>
+        <div class="float-badge">Featured</div>
       </div>
-      <div id="presetList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
-      <div style="margin-top:10px;display:flex;gap:8px">
-        <input type="text" id="presetName" placeholder="预设名称" style="flex:1;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:12px;outline:none">
-        <button class="btn btn-ghost" id="savePresetConfirm" style="height:36px;font-size:12px;padding:0 12px">保存</button>
+      <div class="card-body">
+        <div class="card-tag">Film Simulation</div>
+        <h3>影调一瞬 · 徕卡胶片模拟</h3>
+        <p>6种经典胶片风格，实时预览调色，支持自定义预设管理与商业授权导出。</p>
+        <div class="card-footer">
+          <div class="card-link">
+            Launch Tool
+            <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
+          </div>
+          <div class="card-tech"><span>Canvas</span><span>CSS3</span></div>
+        </div>
       </div>
-    </div>
+    </a>
+
+    <a class="card" href="filmtone/index.html" style="animation:fadeUp 0.6s var(--ease) 0.2s both">
+      <div class="card-visual v2">
+        <div class="icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
+            <line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/>
+            <line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/>
+            <line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>
+            <line x1="17" y1="17" x2="22" y2="17"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Film Tone</div>
+        <h3>Filmtone 胶片色调</h3>
+        <p>精简版胶片调色工具，聚焦色彩还原与影调质感的极致表达。</p>
+        <div class="card-footer">
+          <div class="card-link">
+            Launch Tool
+            <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
+          </div>
+          <div class="card-tech"><span>Canvas</span><span>UI/UX</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="轮播图/轮播图_原版.html" style="animation:fadeUp 0.6s var(--ease) 0.3s both">
+      <div class="card-visual v3">
+        <div class="icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="1" y="3" width="15" height="13" rx="2" ry="2"/>
+            <polygon points="16 8 22 4 22 16 16 12 16 8"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Gallery</div>
+        <h3>视觉轮播图 · 原版</h3>
+        <p>沉浸式图片轮播展示，适配多端屏幕，流畅动效体验。</p>
+        <div class="card-footer">
+          <div class="card-link">
+            View Gallery
+            <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
+          </div>
+          <div class="card-tech"><span>CSS3</span><span>JS</span></div>
+        </div>
+      </div>
+    </a>
+
+    <a class="card" href="轮播图/轮播图_马梦瑶.html" style="animation:fadeUp 0.6s var(--ease) 0.4s both">
+      <div class="card-visual v1">
+        <div class="icon">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+          </svg>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="card-tag">Gallery</div>
+        <h3>视觉轮播图 · 定制版</h3>
+        <p>个性化定制轮播展示方案，包含专属素材与交互设计。</p>
+        <div class="card-footer">
+          <div class="card-link">
+            View Gallery
+            <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
+          </div>
+          <div class="card-tech"><span>CSS3</span><span>Custom</span></div>
+        </div>
+      </div>
+    </a>
+
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <div class="stat-val">4</div>
+    <div class="stat-label">Creative Tools</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">6</div>
+    <div class="stat-label">Film Styles</div>
+  </div>
+  <div class="stat">
+    <div class="stat-val">v3.0</div>
+    <div class="stat-label">Latest Release</div>
   </div>
 </div>
-</main>
 
+<!-- FOOTER -->
 <footer>
-  <span>所有处理均在本地完成，照片不会上传到任何服务器。</span>
-  <span class="spacer"></span>
-  <span>影调一瞬 v3.0 &copy; 2026</span>
+  <p style="margin-bottom:8px">
+    <span style="color:var(--text);font-weight:600">影调一瞬</span>
+    <span style="color:var(--t3)"> &middot; </span>
+    <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank">GitHub</a>
+  </p>
+  <p>Crafted with light &amp; shadow &middot; 2025</p>
 </footer>
 
-<canvas id="hiddenCanvas" style="display:none"></canvas>
-<canvas id="blendCanvas" style="display:none"></canvas>
-
-<div class="zoom-bg" id="zoomBg"><img id="zoomImg" alt=""></div>
-<div class="save-overlay" id="saveOverlay">
-  <img id="saveImg" alt="">
-  <div class="save-hint">长按图片保存到相册<small>Long press to save</small></div>
-  <button class="btn btn-secondary" id="saveClose">关闭</button>
-</div>
-
-<div class="proc-overlay" id="procOverlay">
-  <div class="proc-dots"><div class="proc-dot"></div><div class="proc-dot"></div><div class="proc-dot"></div></div>
-  <div class="proc-steps">
-    <div class="proc-step" data-step="0">读取照片数据...</div>
-    <div class="proc-step" data-step="1">加载色彩矩阵...</div>
-    <div class="proc-step" data-step="2">应用银盐颗粒...</div>
-    <div class="proc-step" data-step="3">计算影调曲线...</div>
-    <div class="proc-step" data-step="4">完成处理</div>
-  </div>
-</div>
-
 <script>
-'use strict';
-
-/* ── AUTH SYSTEM ─────────────── */
-const AUTH_KEY='yingdiao_auth_v3';
-const TRIAL_KEY='yingdiao_trial_v3';
-const MAX_TRIAL=5;
-const VALID_CODES=['YD2026','LEICA1','FILMTONE','影调一瞬'];
-
-function checkAuth(){
-  if(localStorage.getItem(AUTH_KEY)==='1')return true;
-  let trial=parseInt(localStorage.getItem(TRIAL_KEY)||'0');
-  if(trial>=MAX_TRIAL){
-    const code=prompt('试用次数已用完，请输入授权码：\n（购买后获取授权码）');
-    if(code&&VALID_CODES.includes(code.toUpperCase().trim())){
-      localStorage.setItem(AUTH_KEY,'1');
-      alert('授权成功！感谢购买。');
-      return true;
-    }
-    alert('授权码无效，请联系卖家获取。');
-    return false;
-  }
-  localStorage.setItem(TRIAL_KEY,trial+1);
-  return true;
-}
-if(!checkAuth()){
-  document.body.innerHTML='<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:18px;color:#888;text-align:center;padding:20px">试用已结束，请输入授权码后刷新页面。</div>';
-  throw new Error('Trial expired');
-}
-
-/* ── ANTI-DEBUG ──────────────── */
-(function(){
-  const threshold=160;
-  let devtools=false;
-  const detect=()=>{
-    if(window.outerWidth-window.innerWidth>threshold||window.outerHeight-window.innerHeight>threshold){
-      if(!devtools){devtools=true;console.clear();console.log('%c影调一瞬 v3.0','color:#d50032;font-size:24px;font-weight:bold');console.log('%c请支持正版','color:#888;font-size:14px')}
-    }else{devtools=false}
-  };
-  setInterval(detect,1000);
-  document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&e.key==='I')){e.preventDefault();return false}});
-})();
-
-/* ── STATE ──────────────────── */
-let mode='ccd',srcImg=null,divRatio=0.5,dragging=false,watermarkOn=false,showParams=false;
-let procData=null; // {orig:ImageData, proc:ImageData} for intensity blending
-let debounceTimer=null;
-const tmpCanvas=document.createElement('canvas'); // reusable temp canvas
-
-const $=id=>document.getElementById(id);
-const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const isMobile=/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)||window.innerWidth<768;
-
-/* ── HELPERS ────────────────── */
-const clamp=v=>Math.max(0,Math.min(255,Math.round(v)));
-const clamp01=v=>Math.max(0,Math.min(1,v));
-const lerp=(a,b,t)=>a+(b-a)*t;
-function smoothstep(e0,e1,x){const t=clamp01((x-e0)/(e1-e0));return t*t*(3-2*t)}
-function val(id){const el=$(id);return el?parseInt(el.value)/100:0}
-
-/* ── THEME ──────────────────── */
-$('themeBtn').addEventListener('click',()=>{
-  const h=document.documentElement,n=h.dataset.theme==='dark'?'light':'dark';
-  h.dataset.theme=n;$('themeBtn').textContent=n==='dark'?'◐':'◑';
-});
-
-/* ── MODE ───────────────────── */
-document.querySelectorAll('.mode-card').forEach(card=>{
-  card.addEventListener('click',()=>{
-    document.querySelectorAll('.mode-card').forEach(c=>c.classList.remove('active'));
-    card.classList.add('active');mode=card.dataset.mode;
-    renderSliders();if(srcImg)fullProcess();
-  });
-});
-
-/* ── SLIDERS ────────────────── */
-const bwParams=[
-  {id:'grain',label:'颗粒强度',def:45,min:0,max:100,step:1},{id:'contrast',label:'对比度',def:60,min:0,max:100,step:1},
-  {id:'highlight',label:'高光保留',def:55,min:0,max:100,step:1},{id:'vignette',label:'暗角强度',def:40,min:0,max:100,step:1},
-  {id:'halation',label:'银盐光晕',def:25,min:0,max:100,step:1},
-];
-const ccdParams=[
-  {id:'ccd',label:'CCD 偏移',def:50,min:0,max:100,step:1},{id:'green',label:'绿偏强度',def:35,min:0,max:100,step:1},
-  {id:'richness',label:'油润感',def:60,min:0,max:100,step:1},{id:'vignette2',label:'暗角强度',def:30,min:0,max:100,step:1},
-  {id:'micro',label:'微颗粒',def:20,min:0,max:100,step:1},
-];
-
-function debouncedProcess(){
-  clearTimeout(debounceTimer);
-  debounceTimer=setTimeout(()=>{if(srcImg)fullProcess()},150);
-}
-
-function getParams(){
-  const map={bw:bwParams,ccd:ccdParams,m10:m10Params,q:qParams,portra:portraParams,ektar:ektarParams};
-  return map[mode]||ccdParams;
-}
-function renderSliders(){
-  const grid=$('paramGrid'),params=getParams();
-  grid.innerHTML='';
-  params.forEach(p=>{
-    const row=document.createElement('div');row.className='param-row';
-    row.innerHTML=`<span class="param-name">${p.label}</span><span class="param-val" id="v-${p.id}">${p.def}</span>`;
-    const sl=document.createElement('input');sl.type='range';sl.id=p.id;
-    sl.min=p.min;sl.max=p.max;sl.value=p.def;sl.dataset.def=p.def;
-    grid.appendChild(row);grid.appendChild(sl);
-    const vel=row.querySelector('.param-val');
-    sl.addEventListener('input',()=>{vel.textContent=sl.value;debouncedProcess()});
-    sl.addEventListener('dblclick',e=>{e.preventDefault();sl.value=sl.dataset.def;vel.textContent=sl.dataset.def;if(srcImg)fullProcess()});
-  });
-}
-renderSliders();
-
-/* ── INTENSITY ──────────────── */
-$('intensity').addEventListener('input',()=>{
-  $('intensityVal').textContent=$('intensity').value+'%';
-  if(procData)blendToPreview();
-  if(srcImg)$('imgIntensity').textContent=`强度 ${$('intensity').value}%`;
-});
-
-/* ── TOGGLE PARAMS ──────────── */
-$('toggleParams').addEventListener('click',()=>{
-  showParams=!showParams;
-  $('paramPanel').classList.toggle('open',showParams);
-  $('toggleParams').textContent=showParams?'调色参数 ▾':'调色参数 ▸';
-});
-
-/* ── WATERMARK ──────────────── */
-$('wmToggle').addEventListener('click',()=>{
-  watermarkOn=!watermarkOn;$('wmTrack').classList.toggle('on',watermarkOn);
-  $('wmText').style.display=watermarkOn?'inline-block':'none';
-});
-
-/* ── RESET ──────────────────── */
-$('resetBtn').addEventListener('click',()=>{
-  document.querySelectorAll('#paramGrid input[type=range]').forEach(sl=>{
-    sl.value=sl.dataset.def||sl.value;
-    const vel=$('v-'+sl.id);if(vel)vel.textContent=sl.value;
-  });
-  $('intensity').value=80;$('intensityVal').textContent='80%';
-  if(srcImg)fullProcess();
-});
-
-/* ── PRESET MANAGEMENT ─────── */
-const PRESET_KEY='yingdiao_presets_v3';
-let showPresetPanel=false;
-
-$('savePresetBtn').addEventListener('click',()=>{
-  showPresetPanel=!showPresetPanel;
-  $('presetPanel').style.display=showPresetPanel?'block':'none';
-  if(showPresetPanel)renderPresetList();
-});
-
-function getCurrentParams(){
-  const params={mode,intensity:$('intensity').value};
-  document.querySelectorAll('#paramGrid input[type=range]').forEach(sl=>{
-    params[sl.id]=sl.value;
-  });
-  return params;
-}
-function applyPreset(preset){
-  document.querySelectorAll('.mode-card').forEach(c=>{
-    c.classList.toggle('active',c.dataset.mode===preset.mode);
-  });
-  mode=preset.mode;renderSliders();
-  $('intensity').value=preset.intensity||80;$('intensityVal').textContent=(preset.intensity||80)+'%';
-  Object.keys(preset).forEach(k=>{
-    if(k==='mode'||k==='intensity'||k==='name')return;
-    const sl=$(k);if(sl){sl.value=preset[k];const vel=$('v-'+k);if(vel)vel.textContent=preset[k]}
-  });
-  if(srcImg)fullProcess();
-}
-
-function renderPresetList(){
-  const list=$('presetList');
-  const presets=JSON.parse(localStorage.getItem(PRESET_KEY)||'[]');
-  if(presets.length===0){list.innerHTML='<div style="font-size:12px;color:var(--t3);text-align:center;padding:8px">暂无保存的预设</div>';return}
-  list.innerHTML='';
-  presets.forEach((p,i)=>{
-    const row=document.createElement('div');
-    row.style.cssText='display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--bg);border-radius:6px;cursor:pointer';
-    row.innerHTML=`<span style="flex:1;font-size:12px;color:var(--text)">${p.name}</span><span style="font-size:10px;color:var(--t3)">${p.mode}</span>`;
-    row.addEventListener('click',()=>applyPreset(p));
-    const delBtn=document.createElement('button');
-    delBtn.textContent='×';delBtn.style.cssText='background:none;border:none;color:var(--t3);cursor:pointer;font-size:14px;padding:0 4px';
-    delBtn.addEventListener('click',e=>{e.stopPropagation();presets.splice(i,1);localStorage.setItem(PRESET_KEY,JSON.stringify(presets));renderPresetList()});
-    row.appendChild(delBtn);
-    list.appendChild(row);
-  });
-}
-
-$('savePresetConfirm').addEventListener('click',()=>{
-  const name=$('presetName').value.trim();
-  if(!name){alert('请输入预设名称');return}
-  const presets=JSON.parse(localStorage.getItem(PRESET_KEY)||'[]');
-  presets.push({...getCurrentParams(),name});
-  localStorage.setItem(PRESET_KEY,JSON.stringify(presets));
-  $('presetName').value='';renderPresetList();
-});
-
-$('exportPresets').addEventListener('click',()=>{
-  const presets=localStorage.getItem(PRESET_KEY)||'[]';
-  const blob=new Blob([presets],{type:'application/json'});
-  const url=URL.createObjectURL(blob);
-  const a=document.createElement('a');a.href=url;a.download='影调一瞬_预设.json';
-  document.body.appendChild(a);a.click();document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-});
-
-$('importPresets').addEventListener('click',()=>$('presetFileInput').click());
-$('presetFileInput').addEventListener('change',e=>{
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    try{
-      const imported=JSON.parse(ev.target.result);
-      if(!Array.isArray(imported)){alert('无效的预设文件');return}
-      const existing=JSON.parse(localStorage.getItem(PRESET_KEY)||'[]');
-      localStorage.setItem(PRESET_KEY,JSON.stringify([...existing,...imported]));
-      renderPresetList();alert(`成功导入 ${imported.length} 个预设`);
-    }catch(err){alert('文件解析失败：'+err.message)}
-  };
-  reader.readAsText(file);
-});
-
-/* ── UNDO/REDO ──────────────── */
-const historyStack=[];let historyIdx=-1;const MAX_HISTORY=20;
-
-function saveHistory(){
-  const params=getCurrentParams();
-  if(historyIdx<historyStack.length-1)historyStack.splice(historyIdx+1);
-  historyStack.push(params);
-  if(historyStack.length>MAX_HISTORY)historyStack.shift();
-  historyIdx=historyStack.length-1;
-}
-function undo(){
-  if(historyIdx<=0)return;
-  historyIdx--;applyPreset(historyStack[historyIdx]);
-}
-function redo(){
-  if(historyIdx>=historyStack.length-1)return;
-  historyIdx++;applyPreset(historyStack[historyIdx]);
-}
-document.addEventListener('keydown',e=>{
-  if(e.ctrlKey&&e.key==='z'&&!e.shiftKey){e.preventDefault();undo()}
-  if(e.ctrlKey&&(e.key==='y'||(e.key==='z'&&e.shiftKey))){e.preventDefault();redo()}
-});
-// Save history on slider change
-document.addEventListener('input',e=>{
-  if(e.target.type==='range'&&e.target.closest('#paramGrid'))saveHistory();
-});
-
-/* ── UPLOAD ─────────────────── */
-const fileInput=$('fileInput'),fileInput2=$('fileInput2');
-$('heroUploadBtn').addEventListener('click',()=>fileInput.click());
-fileInput.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
-fileInput2.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
-
-const uploadZone=$('uploadZone');
-['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();uploadZone.classList.add('drag')}));
-['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();uploadZone.classList.remove('drag')}));
-document.addEventListener('drop',e=>{
-  e.preventDefault();uploadZone.classList.remove('drag');
-  const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadFile(f);
-});
-
-// Paste support
-document.addEventListener('paste',e=>{
-  const items=e.clipboardData?.items;if(!items)return;
-  for(const item of items){if(item.type.startsWith('image/')){loadFile(item.getAsFile());break}}
-});
-
-function loadFile(file){
-  const reader=new FileReader();
-  reader.onload=ev=>{
-    const img=new Image();
-    img.onload=()=>{
-      const MAX_DIM=4096;
-      if(img.naturalWidth>MAX_DIM||img.naturalHeight>MAX_DIM){
-        alert(`图片尺寸过大（${img.naturalWidth}×${img.naturalHeight}），最大支持 ${MAX_DIM}px。请先压缩图片。`);
-        return;
-      }
-      srcImg=img;$('resetBtn').disabled=false;
-      fullProcess();
-    };
-    img.onerror=()=>alert('图片加载失败，请检查文件格式。');
-    img.src=ev.target.result;
-  };
-  reader.onerror=()=>alert('文件读取失败。');
-  reader.readAsDataURL(file);
-}
-
-/* ── FULL PROCESS ───────────── */
-async function fullProcess(){
-  if(!srcImg)return;
-  showProcOverlay();
-
-  try{
-    const hc=$('hiddenCanvas'),ctx=hc.getContext('2d');
-    hc.width=srcImg.naturalWidth;hc.height=srcImg.naturalHeight;
-    ctx.drawImage(srcImg,0,0);
-
-    await stepOverlay(0);
-    const origId=ctx.getImageData(0,0,hc.width,hc.height);
-    await stepOverlay(1);
-    const processors={bw:applyBW,ccd:applyCCD,m10:applyM10,q:applyQ,portra:applyPortra,ektar:applyEktar};
-    (processors[mode]||applyCCD)(origId.data,hc.width,hc.height);
-    ctx.putImageData(origId,0,0);
-    await stepOverlay(2);
-    applyClarity(ctx,hc.width,hc.height);
-    applyUSM(ctx,hc.width,hc.height);
-    applyVignette(ctx,hc.width,hc.height);
-    await stepOverlay(3);
-
-    procData={orig:origId,proc:ctx.getImageData(0,0,hc.width,hc.height)};
-    await stepOverlay(4);
-    hideProcOverlay();
-    showWorkspace();
-    blendToPreview();
-  }catch(err){
-    hideProcOverlay();
-    alert('图片处理失败：'+err.message);
-    console.error('Process error:',err);
-  }
-}
-
-function showProcOverlay(){
-  $('procOverlay').classList.add('active');
-  document.querySelectorAll('.proc-step').forEach(el=>{el.classList.remove('done','current');el.style.opacity='0.35'});
-}
-function hideProcOverlay(){$('procOverlay').classList.remove('active')}
-async function stepOverlay(idx){
-  const steps=document.querySelectorAll('.proc-step');
-  steps.forEach(el=>el.classList.remove('current'));
-  if(steps[idx]){steps[idx].classList.add('current');steps[idx].style.opacity='1'}
-  for(let i=0;i<idx;i++){if(steps[i]){steps[i].classList.add('done');steps[i].style.opacity='0.7'}}
-  await sleep(120);
-}
-
-/* ── BLEND & SHOW ───────────── */
-function blendToPreview(){
-  const intensity=parseInt($('intensity').value)/100;
-  const orig=procData.orig,proc=procData.proc;
-  const w=$('hiddenCanvas').width,h=$('hiddenCanvas').height;
-
-  const bc=$('blendCanvas'),bctx=bc.getContext('2d');
-  bc.width=w;bc.height=h;
-  const blend=bctx.createImageData(w,h);
-  for(let i=0;i<blend.data.length;i+=4){
-    blend.data[i]=clamp(lerp(orig.data[i],proc.data[i],intensity));
-    blend.data[i+1]=clamp(lerp(orig.data[i+1],proc.data[i+1],intensity));
-    blend.data[i+2]=clamp(lerp(orig.data[i+2],proc.data[i+2],intensity));
-    blend.data[i+3]=255;
-  }
-  bctx.putImageData(blend,0,0);
-
-  // Update comparison canvases
-  const origC=$('cmpOrig'),afterC=$('cmpAfter');
-  origC.width=w;origC.height=h;
-  origC.getContext('2d').drawImage(srcImg,0,0);
-  afterC.width=w;afterC.height=h;
-  afterC.getContext('2d').drawImage(bc,0,0);
-
-  // Fix proc wrap
-  afterC.style.width=origC.offsetWidth+'px';
-  afterC.style.height=origC.offsetHeight+'px';
-  divRatio=0.5;updateDiv();
-
-  // Keep hidden canvas updated for export
-  const hctx=$('hiddenCanvas').getContext('2d');
-  hctx.putImageData(blend,0,0);
-}
-
-function showWorkspace(){
-  $('uploadWrap').style.display='none';
-  $('workspace').classList.add('active');
-  $('intensityBar').style.display='flex';
-  updateImgInfo();
-}
-function updateImgInfo(){
-  if(!srcImg)return;
-  const modeNames={bw:'M3黑白',ccd:'M9彩色',m10:'M10数码',q:'Q街拍',portra:'Portra人像',ektar:'Ektar鲜艳'};
-  $('imgDims').textContent=`${srcImg.naturalWidth}×${srcImg.naturalHeight}`;
-  $('imgMode').textContent=modeNames[mode]||mode;
-  $('imgIntensity').textContent=`强度 ${$('intensity').value}%`;
-  $('imgInfo').style.display='block';
-}
-
-/* ── COMPARISON ─────────────── */
-function updateDiv(){
-  const pv=$('wsPreview'),wrap=$('wsProcWrap'),line=$('wsLine'),knob=$('wsKnob'),after=$('cmpAfter');
-  const origC=$('cmpOrig');
-  const w=pv.offsetWidth,left=w*divRatio;
-  wrap.style.width=left+'px';line.style.left=left+'px';knob.style.left=left+'px';
-  after.style.width=w+'px';after.style.left='0px';
-  // Sync canvas display size on resize
-  if(origC.width>0){
-    const ratio=origC.height/origC.width;
-    after.style.height=Math.round(w*ratio)+'px';
-    origC.style.width=w+'px';
-    origC.style.height=Math.round(w*ratio)+'px';
-  }
+function toggleTheme(){
+  const h=document.documentElement;
+  const isDark=h.getAttribute('data-theme')==='dark';
+  h.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeIcon').innerHTML=isDark?'&#9788;':'&#9790;';
+  localStorage.setItem('theme',isDark?'light':'dark');
 }
 (function(){
-  const pv=$('wsPreview');
-  pv.addEventListener('mousedown',e=>{if(srcImg){dragging=true;mv(e)}});
-  pv.addEventListener('touchstart',e=>{if(srcImg){dragging=true;mv(e)}},{passive:true});
-  window.addEventListener('mousemove',e=>{if(!dragging)return;mv(e)});
-  window.addEventListener('touchmove',e=>{if(!dragging)return;e.preventDefault();mv(e)},{passive:false});
-  window.addEventListener('mouseup',()=>dragging=false);
-  window.addEventListener('touchend',()=>dragging=false);
-  function mv(e){
-    const r=pv.getBoundingClientRect();
-    const x=(e.touches?e.touches[0].clientX:e.clientX)-r.left;
-    divRatio=Math.max(0.01,Math.min(0.99,x/r.width));updateDiv();
-  }
-  window.addEventListener('resize',()=>{if(srcImg)updateDiv()});
-  pv.addEventListener('dblclick',()=>{
-    if(!srcImg)return;
-    $('zoomImg').src=$('hiddenCanvas').toDataURL('image/jpeg',0.95);
-    $('zoomBg').classList.add('open');
-  });
+  const t=localStorage.getItem('theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('themeIcon').innerHTML=t==='dark'?'&#9790;':'&#9788;';
 })();
-$('zoomBg').addEventListener('click',()=>$('zoomBg').classList.remove('open'));
-
-/* ── COMPARISON MODE ─────────── */
-let cmpMode='slider';
-$('cmpSlider').addEventListener('click',()=>{
-  cmpMode='slider';
-  $('cmpSlider').classList.add('active');$('cmpSlider').style.borderColor='var(--red)';
-  $('cmpSide').classList.remove('active');$('cmpSide').style.borderColor='var(--border)';
-  $('wsProcWrap').style.display='block';$('wsLine').style.display='block';$('wsKnob').style.display='block';
-  if(srcImg)updateDiv();
-});
-$('cmpSide').addEventListener('click',()=>{
-  cmpMode='side';
-  $('cmpSide').classList.add('active');$('cmpSide').style.borderColor='var(--red)';
-  $('cmpSlider').classList.remove('active');$('cmpSlider').style.borderColor='var(--border)';
-  $('wsProcWrap').style.display='none';$('wsLine').style.display='none';$('wsKnob').style.display='none';
-  // Show side-by-side
-  const origC=$('cmpOrig');
-  if(origC.width>0){
-    const ratio=origC.height/origC.width;
-    origC.style.width='49%';origC.style.height='auto';origC.style.display='inline-block';
-  }
-});
-
-/* ── RESOLUTION SELECT ──────── */
-$('resSelect').addEventListener('change',()=>{
-  $('customSize').style.display=$('resSelect').value==='custom'?'inline-block':'none';
-});
-
-/* ── EXPORT ─────────────────── */
-$('dlBtn').addEventListener('click',async()=>{
-  try{
-    const hc=$('hiddenCanvas'),res=$('resSelect').value,fmt=$('fmtSelect').value;
-    const prog=$('prog'),fill=$('progFill'),pt=$('progText');
-    prog.style.display='block';fill.style.width='0%';pt.classList.add('show');
-    pt.textContent='Preparing film matrix...';await sleep(600+Math.random()*300);fill.style.width='25%';
-
-    let ow=hc.width,oh=hc.height;
-    if(res==='1080p'){const s=1920/Math.max(ow,oh);ow=Math.round(ow*s);oh=Math.round(oh*s)}
-    if(res==='2k'){const s=2560/Math.max(ow,oh);ow=Math.round(ow*s);oh=Math.round(oh*s)}
-    if(res==='custom'){
-      const customPx=parseInt($('customSize').value);
-      if(!customPx||customPx<100||customPx>8192){alert('请输入 100-8192 之间的尺寸');return}
-      const s=customPx/Math.max(ow,oh);ow=Math.round(ow*s);oh=Math.round(oh*s)
-    }
-
-    const wmH=watermarkOn?72:0;
-    const ec=document.createElement('canvas');ec.width=ow;ec.height=oh+wmH;
-    const ectx=ec.getContext('2d');ectx.drawImage(hc,0,0,ow,oh);
-    if(res!=='original'){pt.textContent='Output sharpening...';await sleep(500);applyUSM(ectx,ow,oh)}
-    if(watermarkOn){pt.textContent='Watermark...';await sleep(400);drawWatermark(ectx,ow,oh,wmH)}
-    fill.style.width='70%';pt.textContent='Encoding...';await sleep(500);fill.style.width='90%';
-
-    let mime='image/jpeg',ext='jpg';
-    if(fmt==='png'){mime='image/png';ext='png'}else if(fmt==='webp'){mime='image/webp';ext='webp'}
-
-    const quality=parseFloat($('qualitySelect').value);
-    const blob=await new Promise(r=>ec.toBlob(r,mime,quality));
-    fill.style.width='100%';pt.textContent='Complete';await sleep(400);
-    prog.style.display='none';pt.classList.remove('show');
-
-    const modeTags={bw:'M3黑白',ccd:'M9彩色',m10:'M10数码',q:'Q街拍',portra:'Portra人像',ektar:'Ektar鲜艳'};
-    const modeTag=modeTags[mode]||'徕卡';
-    if(isMobile){
-      const url=URL.createObjectURL(blob);$('saveImg').src=url;$('saveOverlay').classList.add('active');
-      setTimeout(()=>URL.revokeObjectURL(url),60000);
-    }else{
-      const url=URL.createObjectURL(blob);const a=document.createElement('a');
-      a.href=url;a.download=`影调一瞬_${modeTag}_${Date.now()}.${ext}`;
-      document.body.appendChild(a);a.click();document.body.removeChild(a);
-      setTimeout(()=>URL.revokeObjectURL(url),1000);
-    }
-  }catch(err){
-    const prog=$('prog');prog.style.display='none';
-    alert('导出失败：'+err.message);
-    console.error('Export error:',err);
-  }
-});
-$('saveClose').addEventListener('click',()=>$('saveOverlay').classList.remove('active'));
-$('saveOverlay').addEventListener('click',function(e){if(e.target===this)this.classList.remove('active')});
-
-function drawWatermark(ctx,w,h,bh){
-  const px=Math.round(w*0.04),bl=h+bh*0.6,sp=h+Math.round(bh*0.22);
-  const customText=$('wmText')?.value?.trim();
-  const wmTitle=customText||'影调一瞬 · YINGDIAO';
-  ctx.fillStyle='#f6f3ed';ctx.fillRect(0,h,w,bh);
-  ctx.fillStyle='#d50032';ctx.fillRect(px,sp,w-px*2,1);
-  ctx.fillStyle='#1a1a1a';ctx.font=`600 ${Math.round(bh*0.24)}px "PingFang SC","Microsoft YaHei",sans-serif`;
-  ctx.fillText(wmTitle,px,bl);
-  const p=[];document.querySelectorAll('#paramGrid input[type=range]').forEach(sl=>{
-    const lbl=sl.previousElementSibling?.querySelector('.param-name');
-    if(lbl&&lbl.textContent.length<10)p.push(`${lbl.textContent}+${sl.value}`);
-  });
-  const s=p.slice(0,5).join(' / ');ctx.font=`${Math.round(bh*0.15)}px "PingFang SC","Microsoft YaHei",sans-serif`;ctx.fillStyle='#555';
-  const tw=ctx.measureText(s).width;ctx.fillText(s,w-px-tw,bl);
-}
-
-/* ═══════════════════════════════════════════════════
-   FILM ALGORITHMS (unchanged)
-   ═══════════════════════════════════════════════════ */
-function pieceCurve(t,pts){
-  if(t<=pts[0][0])return pts[0][1];if(t>=pts[pts.length-1][0])return pts[pts.length-1][1];
-  for(let i=0;i<pts.length-1;i++){if(t>=pts[i][0]&&t<=pts[i+1][0]){const seg=(t-pts[i][0])/(pts[i+1][0]-pts[i][0]);return pts[i][1]+seg*(pts[i+1][1]-pts[i][1])}}return t;
-}
-const BW_PTS=[[0,0],[0.251,0.157],[0.502,0.502],[0.753,0.745],[1,1]];
-const CCD_PTS=[[0,0],[0.251,0.196],[0.502,0.502],[0.753,0.706],[1,1]];
-
-function applyBW(data,w,h){
-  const ga=val('grain'),ca=val('contrast'),ha=val('highlight'),la=val('halation'),rw=0.33,gw=0.60,bw=0.07;
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i],g=data[i+1],b=data[i+2],lum=r*rw+g*gw+b*bw,t=lum/255;
-    lum=lerp(t,pieceCurve(t,BW_PTS),ca)*255;if(lum>200&&ha>0){const o=(lum-200)/55;lum=200+o*55*(1-ha*0.5)}
-    const nL=lum/255;
-    lum=clamp(lum+(Math.random()-0.5)*2*ga*52*(nL*0.85)+(Math.random()-0.5)*2*ga*36*(1-Math.abs(nL-0.5)*1.4)+(Math.random()-0.5)*2*ga*18*(1-nL)*0.7);
-    let fr=lum,fg=lum,fb=lum;
-    if(la>0&&(r*rw+g*gw+b*bw)>195){const hs=la*0.3;fr=clamp(lum+hs*16);fg=clamp(lum+hs*5);fb=clamp(lum-hs*6)}
-    data[i]=fr;data[i+1]=fg;data[i+2]=fb;
-  }
-}
-function applyCCD(data,w,h){
-  const ca=val('ccd'),ga=val('green'),ra=val('richness'),ma=val('micro');
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
-    r=lerp(r,r*1.35+g*0.25,ca);g=lerp(g,g*1.10+ga*0.04,ca);b=lerp(b,b*0.85,ca);
-    const lum=r*0.299+g*0.587+b*0.114,sat=1+ra*0.35*smoothstep(0.12,0.88,lum);
-    r=clamp01(lum+(r-lum)*sat);g=clamp01(lum+(g-lum)*sat);b=clamp01(lum+(b-lum)*sat);
-    r=pieceCurve(r,CCD_PTS);g=pieceCurve(g,CCD_PTS);b=pieceCurve(b,CCD_PTS);
-    const l2=r*0.299+g*0.587+b*0.114;
-    if(l2>0.67){const f=(l2-0.67)/0.33;r+=f*0.025;g+=f*0.015;b-=f*0.008}
-    if(l2<0.33){const f=(0.33-l2)/0.33;b+=f*0.025;r-=f*0.008}
-    const n=(Math.random()-0.5)*ma*0.022;r+=n;g+=n;b+=n;
-    data[i]=clamp(r*255);data[i+1]=clamp(g*255);data[i+2]=clamp(b*255);
-  }
-}
-function applyVignette(ctx,w,h){
-  const vid=mode==='bw'?'vignette':'vignette2',v=val(vid);if(v===0)return;
-  const g=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.22,w*0.5,h*0.5,Math.max(w*0.72,h*0.72));
-  g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(0.5,`rgba(0,0,0,${v*0.08})`);
-  g.addColorStop(0.85,`rgba(0,0,0,${v*0.35})`);g.addColorStop(1,`rgba(0,0,0,${v*0.70})`);
-  ctx.globalCompositeOperation='multiply';ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.globalCompositeOperation='source-over';
-}
-function applyClarity(ctx,w,h){
-  tmpCanvas.width=w;tmpCanvas.height=h;
-  const tc=tmpCanvas.getContext('2d');tc.filter='blur(6px)';tc.drawImage(ctx.canvas,0,0);
-  const orig=ctx.getImageData(0,0,w,h),blur=tc.getImageData(0,0,w,h);
-  for(let i=0;i<orig.data.length;i+=4){
-    const lum=orig.data[i]*0.299+orig.data[i+1]*0.587+orig.data[i+2]*0.114,mid=1-Math.abs(lum/255-0.5)*2.8;
-    if(mid<=0)continue;for(let c=0;c<3;c++){const d=orig.data[i+c]-blur.data[i+c];orig.data[i+c]=clamp(orig.data[i+c]+d*0.12*mid)}
-  }ctx.putImageData(orig,0,0);
-}
-function applyUSM(ctx,w,h){
-  tmpCanvas.width=w;tmpCanvas.height=h;
-  const tc=tmpCanvas.getContext('2d');tc.filter='blur(1px)';tc.drawImage(ctx.canvas,0,0);
-  const orig=ctx.getImageData(0,0,w,h),blur=tc.getImageData(0,0,w,h);
-  for(let i=0;i<orig.data.length;i+=4){for(let c=0;c<3;c++){const d=orig.data[i+c]-blur.data[i+c];if(Math.abs(d)>6)orig.data[i+c]=clamp(orig.data[i+c]+d*0.5)}}ctx.putImageData(orig,0,0);
-}
-
-/* ═══════════════════════════════════════════════════
-   NEW FILM MODES: M10 / Q / Portra / Ektar
-   ═══════════════════════════════════════════════════ */
-const M10_PTS=[[0,0],[0.2,0.14],[0.5,0.52],[0.8,0.82],[1,1]];
-const Q_PTS=[[0,0],[0.25,0.22],[0.5,0.48],[0.75,0.72],[1,0.95]];
-const PORTRA_PTS=[[0,0],[0.2,0.18],[0.5,0.48],[0.8,0.76],[1,0.96]];
-const EKTAR_PTS=[[0,0],[0.15,0.1],[0.5,0.55],[0.85,0.88],[1,1]];
-
-const m10Params=[
-  {id:'m10c',label:'对比度',def:65,min:0,max:100,step:1},{id:'m10cool',label:'冷调强度',def:50,min:0,max:100,step:1},
-  {id:'m10sharp',label:'锐度',def:55,min:0,max:100,step:1},{id:'m10vignette',label:'暗角强度',def:25,min:0,max:100,step:1},
-  {id:'m10grain',label:'颗粒',def:15,min:0,max:100,step:1},
-];
-const qParams=[
-  {id:'qwarm',label:'暖调强度',def:55,min:0,max:100,step:1},{id:'qsoft',label:'柔和度',def:60,min:0,max:100,step:1},
-  {id:'qlow',label:'低对比',def:50,min:0,max:100,step:1},{id:'qvignette',label:'暗角',def:30,min:0,max:100,step:1},
-  {id:'qgrain',label:'颗粒',def:20,min:0,max:100,step:1},
-];
-const portraParams=[
-  {id:'portrawarm',label:'暖色偏移',def:60,min:0,max:100,step:1},{id:'portraskin',label:'肤色优化',def:65,min:0,max:100,step:1},
-  {id:'portrasoft',label:'柔和度',def:55,min:0,max:100,step:1},{id:'portravignette',label:'暗角',def:20,min:0,max:100,step:1},
-  {id:'portragrain',label:'颗粒',def:25,min:0,max:100,step:1},
-];
-const ektarParams=[
-  {id:'ektarsat',label:'饱和度',def:70,min:0,max:100,step:1},{id:'ektarvivid',label:'鲜艳度',def:65,min:0,max:100,step:1},
-  {id:'ektarcontrast',label:'对比度',def:55,min:0,max:100,step:1},{id:'ektarvignette',label:'暗角',def:25,min:0,max:100,step:1},
-  {id:'ektargrain',label:'颗粒',def:10,min:0,max:100,step:1},
-];
-
-function applyM10(data,w,h){
-  const ca=val('m10c'),cool=val('m10cool'),sharp=val('m10sharp'),ga=val('m10grain');
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
-    r=pieceCurve(r,M10_PTS);g=pieceCurve(g,M10_PTS);b=pieceCurve(b,M10_PTS);
-    const lum=r*0.299+g*0.587+b*0.114;
-    r=clamp01(lum+(r-lum)*(1+ca*0.3));g=clamp01(lum+(g-lum)*(1+ca*0.3));b=clamp01(lum+(b-lum)*(1+ca*0.3));
-    b+=cool*0.04;r-=cool*0.02;
-    const n=(Math.random()-0.5)*ga*0.015;r+=n;g+=n;b+=n;
-    data[i]=clamp(r*255);data[i+1]=clamp(g*255);data[i+2]=clamp(b*255);
-  }
-}
-function applyQ(data,w,h){
-  const warm=val('qwarm'),soft=val('qsoft'),low=val('qlow'),ga=val('qgrain');
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
-    r=pieceCurve(r,Q_PTS);g=pieceCurve(g,Q_PTS);b=pieceCurve(b,Q_PTS);
-    const lum=r*0.299+g*0.587+b*0.114;
-    r=clamp01(lum+(r-lum)*(1-low*0.2));g=clamp01(lum+(g-lum)*(1-low*0.2));b=clamp01(lum+(b-lum)*(1-low*0.2));
-    r+=warm*0.03;g+=warm*0.015;
-    r=lerp(r,lum,soft*0.15);g=lerp(g,lum,soft*0.15);b=lerp(b,lum,soft*0.15);
-    const n=(Math.random()-0.5)*ga*0.018;r+=n;g+=n;b+=n;
-    data[i]=clamp(r*255);data[i+1]=clamp(g*255);data[i+2]=clamp(b*255);
-  }
-}
-function applyPortra(data,w,h){
-  const warm=val('portrawarm'),skin=val('portraskin'),soft=val('portrasoft'),ga=val('portragrain');
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
-    r=pieceCurve(r,PORTRA_PTS);g=pieceCurve(g,PORTRA_PTS);b=pieceCurve(b,PORTRA_PTS);
-    const lum=r*0.299+g*0.587+b*0.114;
-    r+=warm*0.025;g+=warm*0.01;
-    if(r>0.4&&g>0.3&&b>0.25&&r>g&&g>b){const sf=skin*0.2;r=clamp01(r+sf*0.03);g=clamp01(g+sf*0.02)}
-    r=lerp(r,lum,soft*0.1);g=lerp(g,lum,soft*0.1);b=lerp(b,lum,soft*0.1);
-    const n=(Math.random()-0.5)*ga*0.02;r+=n;g+=n;b+=n;
-    data[i]=clamp(r*255);data[i+1]=clamp(g*255);data[i+2]=clamp(b*255);
-  }
-}
-function applyEktar(data,w,h){
-  const sat=val('ektarsat'),vivid=val('ektarvivid'),ca=val('ektarcontrast'),ga=val('ektargrain');
-  for(let i=0;i<data.length;i+=4){
-    let r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
-    r=pieceCurve(r,EKTAR_PTS);g=pieceCurve(g,EKTAR_PTS);b=pieceCurve(b,EKTAR_PTS);
-    const lum=r*0.299+g*0.587+b*0.114;
-    r=clamp01(lum+(r-lum)*(1+sat*0.4));g=clamp01(lum+(g-lum)*(1+sat*0.4));b=clamp01(lum+(b-lum)*(1+sat*0.4));
-    const maxC=Math.max(r,g,b),minC=Math.min(r,g,b);
-    if(maxC>0){const boost=vivid*0.15*(maxC-minC);if(r===maxC)r+=boost;else if(g===maxC)g+=boost;else b+=boost}
-    r=clamp01(lerp(r,clamp01(pieceCurve(r,M10_PTS)),ca*0.3));
-    g=clamp01(lerp(g,clamp01(pieceCurve(g,M10_PTS)),ca*0.3));
-    b=clamp01(lerp(b,clamp01(pieceCurve(b,M10_PTS)),ca*0.3));
-    const n=(Math.random()-0.5)*ga*0.012;r+=n;g+=n;b+=n;
-    data[i]=clamp(r*255);data[i+1]=clamp(g*255);data[i+2]=clamp(b*255);
-  }
-}
 </script>
 </body>
 </html>
