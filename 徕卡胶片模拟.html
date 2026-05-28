@@ -2,7 +2,7 @@
 <html lang="zh" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -17,8 +17,8 @@
   --border:rgba(255,255,255,0.10);--border-on:rgba(255,255,255,0.16);
   --red:#D50032;--red-h:#E01040;--red-p:#C00028;--red-glow:rgba(213,0,50,0.20);
   --track:#3A3A3C;
-  --en:'SF Pro',-apple-system,'Segoe UI',Roboto,sans-serif;
-  --cn:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --en:'Inter','SF Pro',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --cn:'PingFang SC','Noto Sans SC','Microsoft YaHei','Helvetica Neue',sans-serif;
   --ease:cubic-bezier(0.16,1,0.3,1);
 }
 [data-theme="light"]{
@@ -326,11 +326,11 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
 
 <!-- HEADER -->
 <header>
-  <div class="hd-logo">
+  <a href="index.html" class="hd-logo" style="text-decoration:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="17" cy="7" r="1.5" fill="var(--red)"/></svg>
     <span class="hd-name">影调一瞬</span>
     <span class="hd-sub">Leica Simulator</span>
-  </div>
+  </a>
   <span class="hd-spacer"></span>
   <button class="hd-theme" id="themeBtn" title="切换深浅模式">◐</button>
 </header>
@@ -509,20 +509,6 @@ setTimeout(()=>{const s=document.getElementById('splash');s.style.opacity='0';se
 
 <script>
 'use strict';
-
-/* ── ANTI-DEBUG ──────────────── */
-(function(){
-  if(/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent))return;
-  const threshold=160;
-  let devtools=false;
-  const detect=()=>{
-    if(window.outerWidth-window.innerWidth>threshold||window.outerHeight-window.innerHeight>threshold){
-      if(!devtools){devtools=true;console.clear();console.log('%c影调一瞬 v3.0','color:#d50032;font-size:24px;font-weight:bold');console.log('%c请支持正版','color:#888;font-size:14px')}
-    }else{devtools=false}
-  };
-  setInterval(detect,1000);
-  document.addEventListener('keydown',e=>{if(e.key==='F12'||(e.ctrlKey&&e.shiftKey&&e.key==='I')){e.preventDefault();return false}});
-})();
 
 /* ── STATE ──────────────────── */
 let mode='ccd',srcImg=null,divRatio=0.5,dragging=false,watermarkOn=false,showParams=false;

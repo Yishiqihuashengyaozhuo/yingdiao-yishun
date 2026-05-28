@@ -2,11 +2,11 @@
 <html lang="zh" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
 <title>影调一瞬 · 在线徕卡模拟器</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ═══════════════════════════════════════════════════
    DESIGN SYSTEM · 影调一瞬 v2.1
@@ -29,7 +29,7 @@
 
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-font-smoothing:antialiased}
-body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s}
+body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s;touch-action:pan-y;overflow-x:hidden}
 ::selection{background:var(--red);color:#fff}
 
 /* ═════════════════════ HEADER ═════════════════════ */
@@ -103,7 +103,7 @@ main{padding-top:56px}
 .workspace{display:none;padding-bottom:48px}
 .workspace.active{display:block}
 
-.ws-preview{position:relative;width:100%;margin:0 auto;max-width:900px}
+.ws-preview{position:relative;width:100%;margin:0 auto;max-width:900px;touch-action:none}
 .ws-preview canvas{display:block;width:100%;border-radius:16px}
 .ws-orig{border:1px solid var(--border);border-radius:16px;overflow:hidden}
 .ws-proc-wrap{
@@ -182,6 +182,15 @@ main{padding-top:56px}
   border-radius:8px;border:1px solid var(--border);
 }
 .btn-ghost:hover{color:var(--text);border-color:var(--border-on)}
+.btn-sm{height:36px;font-size:12px;padding:0 12px}
+
+/* Control inputs */
+.ctrl-input{
+  background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:8px 12px;border-radius:8px;font-size:12px;outline:none;
+  transition:border-color 0.2s;
+}
+.ctrl-input:focus{border-color:var(--red)}
 
 /* Progress */
 .prog{height:2px;background:var(--track);overflow:hidden;display:none;border-radius:1px;margin-top:24px;max-width:640px;margin-left:auto;margin-right:auto}
@@ -231,18 +240,43 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.20);box-shadow:
 /* ── RESPONSIVE ───────────── */
 @media(max-width:767px){
   header{padding:0 16px;height:48px}.hd-sub{display:none}.hd-name{font-size:15px}
-  .hero{padding:48px 0 32px}.hero h2{font-size:26px}.hero p{font-size:14px}
+  .hd-theme{width:40px;height:40px}
+  .hero{padding:48px 0 28px}.hero h2{font-size:24px}.hero p{font-size:14px}
   .hero-actions{flex-direction:column;align-items:stretch}
-  .btn-primary,.btn-secondary{width:100%;height:52px;justify-content:center}
-  .mode-card{min-width:0;flex:1 1 45%}
-  .upload-zone{max-height:280px;aspect-ratio:4/3}
+  .btn-primary,.btn-secondary{width:100%;height:52px;justify-content:center;font-size:16px}
+  .mode-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 16px 12px;gap:10px;scrollbar-width:none}
+  .mode-row::-webkit-scrollbar{display:none}
+  .mode-card{min-width:140px;max-width:none;flex:0 0 auto;padding:12px 14px}
+  .mc-name{font-size:14px}
+  .upload-wrap{margin-top:32px}
+  .upload-zone{max-height:240px;aspect-ratio:auto;padding:40px 20px}
   .container{padding:0 16px}
-  .intensity-bar{flex-wrap:wrap}
-  .controls{flex-direction:column;align-items:stretch}
-  .ex-select{width:100%}.wm-label{justify-content:center}
+  .workspace{padding-bottom:32px}
+  .ws-preview{border-radius:12px}
+  .ws-preview canvas,.ws-orig{border-radius:12px}
+  .ws-proc-wrap{border-radius:12px 0 0 12px}
+  .ws-knob{width:40px;height:40px}
+  .ws-label{font-size:10px;padding:5px 10px}
+  .intensity-bar{margin-top:24px;gap:12px}
+  .intensity-label{font-size:12px}
+  .controls{flex-direction:column;align-items:stretch;gap:10px;margin-top:28px}
+  .ex-select{width:100%;height:48px;font-size:14px;padding:12px 14px}
+  .wm-label{justify-content:center;height:48px;font-size:14px}
+  .ctrl-input{width:100%;height:48px;font-size:14px;padding:12px 14px}
+  .btn-ghost{height:48px;font-size:14px}
+  .btn-primary{height:52px;font-size:16px}
+  input[type=range]::-webkit-slider-thumb{width:26px;height:26px}
+  .param-panel{margin-top:20px}
+  .param-panel-grid{padding:16px;gap:16px}
+  .param-row{gap:12px}
+  .param-name{font-size:13px}
+  .param-val{font-size:13px}
+  .save-overlay img{max-width:96vw;max-height:60vh}
+  .save-hint{font-size:14px}
+  .save-hint small{font-size:12px}
+  .proc-step{font-size:13px}
   footer{flex-direction:column;text-align:center;gap:8px}
   footer .spacer{display:none}
-  .ws-knob{width:36px;height:36px}
 }
 @media(min-width:768px)and(max-width:1199px){.container{max-width:720px}}
 </style>
@@ -251,11 +285,11 @@ input[type=range]:active::-webkit-slider-thumb{transform:scale(1.20);box-shadow:
 
 <!-- HEADER -->
 <header>
-  <div class="hd-logo">
+  <a href="../index.html" class="hd-logo" style="text-decoration:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5"><rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/><path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="17" cy="7" r="1.5" fill="var(--red)"/></svg>
     <span class="hd-name">影调一瞬</span>
     <span class="hd-sub">Leica Simulator</span>
-  </div>
+  </a>
   <span class="hd-spacer"></span>
   <button class="hd-theme" id="themeBtn" title="切换深浅模式">◐</button>
 </header>
@@ -411,15 +445,21 @@ document.querySelectorAll('.mode-card').forEach(card=>{
 
 /* ── SLIDERS ────────────────── */
 const bwParams=[
-  {id:'grain',label:'颗粒强度',def:45},{id:'contrast',label:'对比度',def:60},
-  {id:'highlight',label:'高光保留',def:55},{id:'vignette',label:'暗角强度',def:40},
-  {id:'halation',label:'银盐光晕',def:25},
+  {id:'grain',label:'颗粒强度',def:45,min:0,max:100,step:1},{id:'contrast',label:'对比度',def:60,min:0,max:100,step:1},
+  {id:'highlight',label:'高光保留',def:55,min:0,max:100,step:1},{id:'vignette',label:'暗角强度',def:40,min:0,max:100,step:1},
+  {id:'halation',label:'银盐光晕',def:25,min:0,max:100,step:1},
 ];
 const ccdParams=[
-  {id:'ccd',label:'CCD 偏移',def:50},{id:'green',label:'绿偏强度',def:35},
-  {id:'richness',label:'油润感',def:60},{id:'vignette2',label:'暗角强度',def:30},
-  {id:'micro',label:'微颗粒',def:20},
+  {id:'ccd',label:'CCD 偏移',def:50,min:0,max:100,step:1},{id:'green',label:'绿偏强度',def:35,min:0,max:100,step:1},
+  {id:'richness',label:'油润感',def:60,min:0,max:100,step:1},{id:'vignette2',label:'暗角强度',def:30,min:0,max:100,step:1},
+  {id:'micro',label:'微颗粒',def:20,min:0,max:100,step:1},
 ];
+
+let debounceTimer=null;
+function debouncedProcess(){
+  clearTimeout(debounceTimer);
+  debounceTimer=setTimeout(()=>{if(srcImg)fullProcess()},150);
+}
 
 function renderSliders(){
   const grid=$('paramGrid'),params=mode==='bw'?bwParams:ccdParams;
@@ -431,7 +471,7 @@ function renderSliders(){
     sl.min=p.min;sl.max=p.max;sl.value=p.def;sl.dataset.def=p.def;
     grid.appendChild(row);grid.appendChild(sl);
     const vel=row.querySelector('.param-val');
-    sl.addEventListener('input',()=>{vel.textContent=sl.value;if(srcImg)fullProcess()});
+    sl.addEventListener('input',()=>{vel.textContent=sl.value;debouncedProcess()});
     sl.addEventListener('dblclick',e=>{e.preventDefault();sl.value=sl.dataset.def;vel.textContent=sl.dataset.def;if(srcImg)fullProcess()});
   });
 }
@@ -486,16 +526,136 @@ document.addEventListener('paste',e=>{
 });
 
 function loadFile(file){
+  if(!file){return}
+  $('heroUploadBtn').textContent='加载中...';
   const reader=new FileReader();
   reader.onload=ev=>{
     const img=new Image();
     img.onload=()=>{
-      srcImg=img;$('resetBtn').disabled=false;
-      fullProcess();
+      const PROC_MAX=isMobile?2048:4096;
+      const MAX_DIM=8192;
+      if(img.naturalWidth>MAX_DIM||img.naturalHeight>MAX_DIM){
+        alert(`图片尺寸过大（${img.naturalWidth}×${img.naturalHeight}），最大支持 ${MAX_DIM}px。`);return;
+      }
+      if(img.naturalWidth>PROC_MAX||img.naturalHeight>PROC_MAX){
+        const s=PROC_MAX/Math.max(img.naturalWidth,img.naturalHeight);
+        const nw=Math.round(img.naturalWidth*s),nh=Math.round(img.naturalHeight*s);
+        const rc=document.createElement('canvas');rc.width=nw;rc.height=nh;
+        rc.getContext('2d').drawImage(img,0,0,nw,nh);
+        const si=new Image();si.onload=()=>{srcImg=si;$('resetBtn').disabled=false;fullProcess()};
+        si.onerror=()=>{$('heroUploadBtn').textContent='上传照片';alert('图片处理失败，请尝试更小的图片。')};
+        si.src=rc.toDataURL('image/jpeg',0.95);
+      }else{
+        srcImg=img;$('resetBtn').disabled=false;fullProcess();
+      }
+    };
+    img.onerror=()=>{
+      $('heroUploadBtn').textContent='上传照片';
+      alert('图片格式不支持或文件已损坏，请尝试 JPG / PNG / WEBP 格式。');
     };
     img.src=ev.target.result;
   };
+  reader.onerror=()=>$('heroUploadBtn').textContent='上传照片';
   reader.readAsDataURL(file);
+}
+
+/* ── CHUNKED PIXEL PROCESSING ── */
+const CHUNK_SIZE=isMobile?200000:800000;
+function processPixelsChunked(data,w,h,fn){
+  const totalPixels=w*h;let idx=0;
+  function chunk(){
+    const end=Math.min(idx+CHUNK_SIZE,totalPixels);
+    for(let p=idx;p<end;p++){
+      const i=p*4;
+      fn(data,i,w,h,p);
+    }
+    idx=end;
+    if(idx<totalPixels)return new Promise(r=>setTimeout(r,0)).then(chunk);
+    return Promise.resolve();
+  }
+  return chunk();
+}
+
+/* ── ASYNC BLUR / CLARITY / USM ── */
+function blurImageDataAsync(src,w,h,radius,downscale){
+  const ds=downscale||1;const sw=Math.ceil(w/ds),sh=Math.ceil(h/ds);
+  const sc=document.createElement('canvas');sc.width=sw;sc.height=sh;
+  const sctx=sc.getContext('2d');const si=sctx.createImageData(sw,sh);
+  for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
+    const si2=(y*sw+x)*4,oi=((y*ds)*w+(x*ds))*4;
+    si.data[si2]=src.data[oi];si.data[si2+1]=src.data[oi+1];si.data[si2+2]=src.data[oi+2];si.data[si2+3]=255;
+  }
+  sctx.putImageData(si,0,0);
+  const tc=document.createElement('canvas');tc.width=sw;tc.height=sh;
+  const tctx=tc.getContext('2d');tctx.filter='blur('+Math.max(1,Math.round(radius/ds))+'px)';
+  tctx.drawImage(sc,0,0);
+  return tctx.getImageData(0,0,sw,sh);
+}
+async function applyClarityAsync(ctx,w,h){
+  const ds=w>2000?4:2;
+  const orig=ctx.getImageData(0,0,w,h);
+  const blur=blurImageDataAsync(orig.data,w,h,6,ds);
+  const sw=Math.ceil(w/ds),sh=Math.ceil(h/ds);
+  const total=orig.data.length/4;let idx=0;
+  function chunk(){
+    const end=Math.min(idx+CHUNK_SIZE,total);
+    for(let p=idx;p<end;p++){
+      const i=p*4,sx=Math.floor((p%w)/ds),sy=Math.floor(Math.floor(p/w)/ds);
+      const si=(sy*sw+sx)*4;
+      const lum=orig.data[i]*0.299+orig.data[i+1]*0.587+orig.data[i+2]*0.114;
+      const mid=1-Math.abs(lum/255-0.5)*2.8;
+      if(mid<=0)continue;
+      for(let c=0;c<3;c++){const d=orig.data[i+c]-blur.data[si+c];orig.data[i+c]=clamp(orig.data[i+c]+d*0.15*mid)}
+    }
+    idx=end;ctx.putImageData(orig,0,0);
+    if(idx<total)return new Promise(r=>setTimeout(r,0)).then(chunk);
+    return Promise.resolve();
+  }
+  return chunk();
+}
+async function applyUSMAsync(ctx,w,h){
+  const ds=w>2000?4:2;
+  const orig=ctx.getImageData(0,0,w,h);
+  const blur=blurImageDataAsync(orig.data,w,h,1,ds);
+  const sw=Math.ceil(w/ds),sh=Math.ceil(h/ds);
+  const total=orig.data.length/4;let idx=0;
+  function chunk(){
+    const end=Math.min(idx+CHUNK_SIZE,total);
+    for(let p=idx;p<end;p++){
+      const i=p*4,sx=Math.floor((p%w)/ds),sy=Math.floor(Math.floor(p/w)/ds);
+      const si=(sy*sw+sx)*4;
+      for(let c=0;c<3;c++){const d=orig.data[i+c]-blur.data[si+c];if(Math.abs(d)>6)orig.data[i+c]=clamp(orig.data[i+c]+d*0.5)}
+    }
+    idx=end;ctx.putImageData(orig,0,0);
+    if(idx<total)return new Promise(r=>setTimeout(r,0)).then(chunk);
+    return Promise.resolve();
+  }
+  return chunk();
+}
+
+/* ── CHUNKED PIXEL PROCESSORS ─── */
+function procBWChunked(data,i,w,h,p){
+  const ga=val('grain'),ca=val('contrast'),ha=val('highlight'),la=val('halation'),rw=0.33,gw=0.60,bw2=0.07;
+  let r=data[i],g=data[i+1],b=data[i+2],lum=r*rw+g*gw+b*bw2,t=lum/255;
+  lum=lerp(t,pieceCurve(t,BW_PTS),ca)*255;if(lum>200&&ha>0){const o=(lum-200)/55;lum=200+o*55*(1-ha*0.5)}
+  const nL=lum/255;
+  lum=clamp(lum+(Math.random()-0.5)*2*ga*52*(nL*0.85)+(Math.random()-0.5)*2*ga*36*(1-Math.abs(nL-0.5)*1.4)+(Math.random()-0.5)*2*ga*18*(1-nL)*0.7);
+  let fr=lum,fg=lum,fb=lum;
+  if(la>0&&(r*rw+g*gw+b*bw2)>195){const hs=la*0.3;fr=clamp(lum+hs*16);fg=clamp(lum+hs*5);fb=clamp(lum-hs*6)}
+  data[i]=fr;data[i+1]=fg;data[i+2]=fb;
+}
+function procCCDChunked(data,i,w,h,p){
+  const ca=val('ccd'),ga=val('green'),ra=val('richness'),ma=val('micro');
+  let r=data[i]/255,g=data[i+1]/255,b=data[i+2]/255;
+  r=lerp(r,r*1.35+g*0.25,ca);g=lerp(g,g*1.10+ga*0.04,ca);b=lerp(b,b*0.85,ca);
+  const lum=r*0.299+g*0.587+b*0.114,sat=1+ra*0.35*smoothstep(0.12,0.88,lum);
+  r=clamp01(lum+(r-lum)*sat);g=clamp01(lum+(g-lum)*sat);b=clamp01(lum+(b-lum)*sat);
+  r=pieceCurve(r,CCD_PTS);g=pieceCurve(g,CCD_PTS);b=pieceCurve(b,CCD_PTS);
+  const l2=r*0.299+g*0.587+b*0.114;
+  if(l2>0.67){const f=(l2-0.67)/0.33;r+=f*0.025;g+=f*0.015;b-=f*0.008}
+  if(l2<0.33){const f=(0.33-l2)/0.33;b+=f*0.025;r-=f*0.008}
+  const n=(Math.random()-0.5)*ma*0.022;r+=n;g+=n;b+=n;
+  data[i]=clamp(r*255);data[i+1]=clamp(g*255);data[i+2]=clamp(b*255);
 }
 
 /* ── FULL PROCESS ───────────── */
@@ -503,27 +663,38 @@ async function fullProcess(){
   if(!srcImg)return;
   showProcOverlay();
 
-  const hc=$('hiddenCanvas'),ctx=hc.getContext('2d');
-  hc.width=srcImg.naturalWidth;hc.height=srcImg.naturalHeight;
-  ctx.drawImage(srcImg,0,0);
+  try{
+    const hc=$('hiddenCanvas'),ctx=hc.getContext('2d');
+    hc.width=srcImg.naturalWidth;hc.height=srcImg.naturalHeight;
+    ctx.drawImage(srcImg,0,0);
 
-  await stepOverlay(0);
-  const origId=ctx.getImageData(0,0,hc.width,hc.height);
-  await stepOverlay(1);
-  if(mode==='bw')applyBW(origId.data,hc.width,hc.height);
-  else applyCCD(origId.data,hc.width,hc.height);
-  ctx.putImageData(origId,0,0);
-  await stepOverlay(2);
-  applyClarity(ctx,hc.width,hc.height);
-  applyUSM(ctx,hc.width,hc.height);
-  applyVignette(ctx,hc.width,hc.height);
-  await stepOverlay(3);
+    await stepOverlay(0);await sleep(16);
+    const origCopy=ctx.getImageData(0,0,hc.width,hc.height);
+    const procId=ctx.getImageData(0,0,hc.width,hc.height);
 
-  procData={orig:origId,proc:ctx.getImageData(0,0,hc.width,hc.height)};
-  await stepOverlay(4);
-  hideProcOverlay();
-  showWorkspace();
-  blendToPreview();
+    await stepOverlay(1);await sleep(16);
+    const processors={bw:procBWChunked,ccd:procCCDChunked};
+    await processPixelsChunked(procId.data,hc.width,hc.height,processors[mode]||procCCDChunked);
+
+    ctx.putImageData(procId,0,0);
+    await stepOverlay(2);await sleep(16);
+    await applyClarityAsync(ctx,hc.width,hc.height);
+    await applyUSMAsync(ctx,hc.width,hc.height);
+    applyVignette(ctx,hc.width,hc.height);
+    await stepOverlay(3);await sleep(16);
+
+    procData={orig:origCopy,proc:ctx.getImageData(0,0,hc.width,hc.height)};
+    await stepOverlay(4);await sleep(200);
+    hideProcOverlay();
+    showWorkspace();
+    blendToPreview();
+    $('heroUploadBtn').textContent='更换照片';
+  }catch(err){
+    hideProcOverlay();
+    $('heroUploadBtn').textContent='上传照片';
+    alert('图片处理失败：'+err.message);
+    console.error('Process error:',err);
+  }
 }
 
 function showProcOverlay(){
@@ -541,17 +712,20 @@ async function stepOverlay(idx){
 
 /* ── BLEND & SHOW ───────────── */
 function blendToPreview(){
+  if(!procData||!procData.orig||!procData.proc)return;
   const intensity=parseInt($('intensity').value)/100;
   const orig=procData.orig,proc=procData.proc;
-  const w=$('hiddenCanvas').width,h=$('hiddenCanvas').height;
+  const w=orig.width,h=orig.height;
 
   const bc=$('blendCanvas'),bctx=bc.getContext('2d');
   bc.width=w;bc.height=h;
   const blend=bctx.createImageData(w,h);
-  for(let i=0;i<blend.data.length;i++){
+  for(let i=0;i<blend.data.length;i+=4){
     blend.data[i]=clamp(lerp(orig.data[i],proc.data[i],intensity));
+    blend.data[i+1]=clamp(lerp(orig.data[i+1],proc.data[i+1],intensity));
+    blend.data[i+2]=clamp(lerp(orig.data[i+2],proc.data[i+2],intensity));
+    blend.data[i+3]=255;
   }
-  blend.data[3]=255; // force alpha
   bctx.putImageData(blend,0,0);
 
   // Update comparison canvases
@@ -575,14 +749,22 @@ function showWorkspace(){
   $('uploadWrap').style.display='none';
   $('workspace').classList.add('active');
   $('intensityBar').style.display='flex';
+  $('workspace').scrollIntoView({behavior:'smooth',block:'start'});
 }
 
 /* ── COMPARISON ─────────────── */
 function updateDiv(){
   const pv=$('wsPreview'),wrap=$('wsProcWrap'),line=$('wsLine'),knob=$('wsKnob'),after=$('cmpAfter');
+  const origC=$('cmpOrig');
   const w=pv.offsetWidth,left=w*divRatio;
   wrap.style.width=left+'px';line.style.left=left+'px';knob.style.left=left+'px';
   after.style.width=w+'px';after.style.left='0px';
+  if(origC.width>0){
+    const ratio=origC.height/origC.width;
+    after.style.height=Math.round(w*ratio)+'px';
+    origC.style.width=w+'px';
+    origC.style.height=Math.round(w*ratio)+'px';
+  }
 }
 (function(){
   const pv=$('wsPreview');
