@@ -486,6 +486,28 @@ const lerp = (a, b, t) => a + (b - a) * t;
 function smoothstep(e0, e1, x) { const t = clamp01((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t) }
 function val(id) { const el = $(id); return el ? parseInt(el.value) / 100 : 0 }
 
+/* ---- Gamma (指令1: sRGB <-> 线性光) ---- */
+function toLinear(c) { return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4) }
+function toSRGB(c) { c = clamp01(c); return c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055 }
+
+/* ---- 空间相关胶片颗粒缓存 (指令3) ---- */
+let grainCache = null, grainW = 0, grainH = 0;
+function buildGrainCache(w, h) {
+  if (grainCache && grainW === w && grainH === h) return;
+  grainW = w; grainH = h;
+  grainCache = new Float32Array(w * h);
+  for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+    const i = y * w + x;
+    const g1 = (Math.sin(x * 0.8 + y * 1.3 + Math.random() * 0.3) + 1) * 0.5;
+    const g2 = (Math.sin(x * 2.1 + y * 0.7 + Math.random() * 0.5) + 1) * 0.5;
+    const n = (Math.random() - 0.5);
+    grainCache[i] = (g1 * 0.3 + g2 * 0.3 + n * 0.4);
+  }
+}
+function getGrain(x, y, w) {
+  return grainCache ? grainCache[Math.min(y, grainH - 1) * grainW + Math.min(x, grainW - 1)] : (Math.random() - 0.5);
+}
+
 /* ================================================================
    SPLASH — self-removing, pointer-events disabled after fade
    ================================================================ */
@@ -695,6 +717,7 @@ async function fullProcess() {
     } catch (e) { throw new Error('读取像素失败: ' + e.message) }
 
     await overlayStep(1); await sleep(16);
+    buildGrainCache(w, h);
 
     try {
       const fn = getProcessor(app.mode);
@@ -745,13 +768,21 @@ function getProcessor(mode) {
   return map[mode] || procCCD;
 }
 
-/* ---- Film curve ---- */
+/* ---- Film curve: Catmull-Rom spline (指令2) ---- */
 function curve(t, pts) {
   if (t <= pts[0][0]) return pts[0][1];
   if (t >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
   for (let i = 0; i < pts.length - 1; i++) {
     if (t >= pts[i][0] && t <= pts[i + 1][0]) {
-      return pts[i][1] + (t - pts[i][0]) / (pts[i + 1][0] - pts[i][0]) * (pts[i + 1][1] - pts[i][1]);
+      const p0 = pts[Math.max(0, i - 1)], p1 = pts[i], p2 = pts[i + 1], p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const tt = (t - p1[0]) / (p2[0] - p1[0]);
+      const tt2 = tt * tt, tt3 = tt2 * tt;
+      return clamp01(
+        0.5 * ((2 * p1[1]) +
+        (-p0[1] + p2[1]) * tt +
+        (2 * p0[1] - 5 * p1[1] + 4 * p2[1] - p3[1]) * tt2 +
+        (-p0[1] + 3 * p1[1] - 3 * p2[1] + p3[1]) * tt3)
+      );
     }
   }
   return t;
@@ -763,77 +794,98 @@ const Q_PTS = [[0,0],[.25,.22],[.5,.48],[.75,.72],[1,.95]];
 const PORTRA_PTS = [[0,0],[.2,.18],[.5,.48],[.8,.76],[1,.96]];
 const EKTAR_PTS = [[0,0],[.15,.1],[.5,.55],[.85,.88],[1,1]];
 
-/* ---- Per-mode processors ---- */
-function procBW(data, i) {
+/* ---- Per-mode processors (指令1 gamma + 指令3 空间颗粒 + 指令4 分色调) ---- */
+function procBW(data, i, w) {
   const ga = val('grain'), ca = val('contrast'), ha = val('highlight'), la = val('halation');
-  let r = data[i], g = data[i+1], b = data[i+2];
-  let lum = r*.33 + g*.60 + b*.07, t = lum/255;
-  lum = lerp(t, curve(t, BW_PTS), ca) * 255;
-  if (lum > 200 && ha > 0) { const o = (lum-200)/55; lum = 200 + o*55*(1-ha*.5) }
-  const nL = lum/255;
-  lum = clamp(lum + (Math.random()-.5)*2*ga*52*(nL*.85) + (Math.random()-.5)*2*ga*36*(1-Math.abs(nL-.5)*1.4) + (Math.random()-.5)*2*ga*18*(1-nL)*.7);
+  const x = (i/4) % w, y = Math.floor((i/4) / w);
+  // gamma decode
+  let r = toLinear(data[i]/255), g = toLinear(data[i+1]/255), b = toLinear(data[i+2]/255);
+  let lum = r*.2126 + g*.7152 + b*.0722, t = clamp01(lum);
+  lum = lerp(t, curve(t, BW_PTS), ca);
+  if (lum > .78 && ha > 0) { const o = (lum-.78)/.22; lum = .78 + o*.22*(1-ha*.5) }
+  // spatial grain
+  const gn = getGrain(x, y, w) * ga * 0.06;
+  lum = clamp01(lum + gn*(lum*.85) + gn*.5*(1-Math.abs(lum-.5)*1.4));
   let fr = lum, fg = lum, fb = lum;
-  if (la > 0 && (r*.33+g*.60+b*.07) > 195) { const hs = la*.3; fr = clamp(lum+hs*16); fg = clamp(lum+hs*5); fb = clamp(lum-hs*6) }
-  data[i] = fr; data[i+1] = fg; data[i+2] = fb;
+  if (la > 0 && (r*.2126+g*.7152+b*.0722) > .76) { const hs = la*.15; fr = clamp01(lum+hs*.06); fg = clamp01(lum+hs*.02); fb = clamp01(lum-hs*.02) }
+  // gamma encode
+  data[i] = clamp(toSRGB(fr)*255); data[i+1] = clamp(toSRGB(fg)*255); data[i+2] = clamp(toSRGB(fb)*255);
 }
-function procCCD(data, i) {
+function procCCD(data, i, w) {
   const ca = val('ccd'), ga = val('green'), ra = val('richness'), ma = val('micro');
-  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  const px = (i/4) % w, py = Math.floor((i/4) / w);
+  // gamma decode
+  let r = toLinear(data[i]/255), g = toLinear(data[i+1]/255), b = toLinear(data[i+2]/255);
   r = lerp(r, r*1.35+g*.25, ca); g = lerp(g, g*1.10+ga*.04, ca); b = lerp(b, b*.85, ca);
-  const lum = r*.299+g*.587+b*.114, sat = 1+ra*.35*smoothstep(.12,.88,lum);
+  const lum = r*.2126+g*.7152+b*.0722, sat = 1+ra*.35*smoothstep(.12,.88,lum);
   r = clamp01(lum+(r-lum)*sat); g = clamp01(lum+(g-lum)*sat); b = clamp01(lum+(b-lum)*sat);
   r = curve(r, CCD_PTS); g = curve(g, CCD_PTS); b = curve(b, CCD_PTS);
-  const l2 = r*.299+g*.587+b*.114;
+  let l2 = r*.2126+g*.7152+b*.0722;
   if (l2 > .67) { const f = (l2-.67)/.33; r += f*.025; g += f*.015; b -= f*.008 }
   if (l2 < .33) { const f = (.33-l2)/.33; b += f*.025; r -= f*.008 }
-  const n = (Math.random()-.5)*ma*.022; r += n; g += n; b += n;
-  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+  // 指令4: 分色调 — 高光暖黄，阴影蓝绿
+  l2 = r*.2126+g*.7152+b*.0722;
+  if (l2 > .72) { const f = (l2-.72)/.28; r = clamp01(r+f*.018); g = clamp01(g+f*.008); b = clamp01(b-f*.012) }
+  if (l2 < .25) { const f = (.25-l2)/.25; b = clamp01(b+f*.02); g = clamp01(g+f*.008) }
+  // spatial grain
+  const gn = getGrain(px, py, w) * ma * 0.022; r += gn; g += gn; b += gn;
+  // gamma encode
+  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
 }
-function procM10(data, i) {
+function procM10(data, i, w) {
   const ca = val('m10c'), cool = val('m10cool'), ga = val('m10grain');
-  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  const px = (i/4) % w, py = Math.floor((i/4) / w);
+  let r = toLinear(data[i]/255), g = toLinear(data[i+1]/255), b = toLinear(data[i+2]/255);
   r = curve(r, M10_PTS); g = curve(g, M10_PTS); b = curve(b, M10_PTS);
-  const lum = r*.299+g*.587+b*.114;
+  const lum = r*.2126+g*.7152+b*.0722;
   r = clamp01(lum+(r-lum)*(1+ca*.3)); g = clamp01(lum+(g-lum)*(1+ca*.3)); b = clamp01(lum+(b-lum)*(1+ca*.3));
   b += cool*.04; r -= cool*.02;
-  const n = (Math.random()-.5)*ga*.015; r += n; g += n; b += n;
-  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+  const gn = getGrain(px, py, w) * ga * 0.015; r += gn; g += gn; b += gn;
+  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
 }
-function procQ(data, i) {
+function procQ(data, i, w) {
   const warm = val('qwarm'), soft = val('qsoft'), low = val('qlow'), ga = val('qgrain');
-  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  const px = (i/4) % w, py = Math.floor((i/4) / w);
+  let r = toLinear(data[i]/255), g = toLinear(data[i+1]/255), b = toLinear(data[i+2]/255);
   r = curve(r, Q_PTS); g = curve(g, Q_PTS); b = curve(b, Q_PTS);
-  const lum = r*.299+g*.587+b*.114;
+  const lum = r*.2126+g*.7152+b*.0722;
   r = clamp01(lum+(r-lum)*(1-low*.2)); g = clamp01(lum+(g-lum)*(1-low*.2)); b = clamp01(lum+(b-lum)*(1-low*.2));
   r += warm*.03; g += warm*.015;
+  // 指令4: 全局暖移
+  r = clamp01(r + .012); g = clamp01(g + .006);
   r = lerp(r, lum, soft*.15); g = lerp(g, lum, soft*.15); b = lerp(b, lum, soft*.15);
-  const n = (Math.random()-.5)*ga*.018; r += n; g += n; b += n;
-  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+  const gn = getGrain(px, py, w) * ga * 0.018; r += gn; g += gn; b += gn;
+  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
 }
-function procPortra(data, i) {
+function procPortra(data, i, w) {
   const warm = val('portrawarm'), skin = val('portraskin'), soft = val('portrasoft'), ga = val('portragrain');
-  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  const px = (i/4) % w, py = Math.floor((i/4) / w);
+  let r = toLinear(data[i]/255), g = toLinear(data[i+1]/255), b = toLinear(data[i+2]/255);
   r = curve(r, PORTRA_PTS); g = curve(g, PORTRA_PTS); b = curve(b, PORTRA_PTS);
-  const lum = r*.299+g*.587+b*.114;
+  const lum = r*.2126+g*.7152+b*.0722;
   r += warm*.025; g += warm*.01;
   if (r>.4 && g>.3 && b>.25 && r>g && g>b) { const sf = skin*.2; r = clamp01(r+sf*.03); g = clamp01(g+sf*.02) }
+  // 指令4: 高光奶油黄，阴影偏青
+  if (lum > .65) { r = clamp01(r + .015); g = clamp01(g + .010); b = clamp01(b - .008) }
+  if (lum < .3) { b = clamp01(b + .012) }
   r = lerp(r, lum, soft*.1); g = lerp(g, lum, soft*.1); b = lerp(b, lum, soft*.1);
-  const n = (Math.random()-.5)*ga*.02; r += n; g += n; b += n;
-  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+  const gn = getGrain(px, py, w) * ga * 0.02; r += gn; g += gn; b += gn;
+  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
 }
-function procEktar(data, i) {
+function procEktar(data, i, w) {
   const sat = val('ektarsat'), vivid = val('ektarvivid'), ca = val('ektarcontrast'), ga = val('ektargrain');
-  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  const px = (i/4) % w, py = Math.floor((i/4) / w);
+  let r = toLinear(data[i]/255), g = toLinear(data[i+1]/255), b = toLinear(data[i+2]/255);
   r = curve(r, EKTAR_PTS); g = curve(g, EKTAR_PTS); b = curve(b, EKTAR_PTS);
-  const lum = r*.299+g*.587+b*.114;
+  const lum = r*.2126+g*.7152+b*.0722;
   r = clamp01(lum+(r-lum)*(1+sat*.4)); g = clamp01(lum+(g-lum)*(1+sat*.4)); b = clamp01(lum+(b-lum)*(1+sat*.4));
   const maxC = Math.max(r,g,b), minC = Math.min(r,g,b);
   if (maxC > 0) { const boost = vivid*.15*(maxC-minC); if (r===maxC) r+=boost; else if (g===maxC) g+=boost; else b+=boost }
   r = clamp01(lerp(r, clamp01(curve(r, M10_PTS)), ca*.3));
   g = clamp01(lerp(g, clamp01(curve(g, M10_PTS)), ca*.3));
   b = clamp01(lerp(b, clamp01(curve(b, M10_PTS)), ca*.3));
-  const n = (Math.random()-.5)*ga*.012; r += n; g += n; b += n;
-  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+  const gn = getGrain(px, py, w) * ga * 0.012; r += gn; g += gn; b += gn;
+  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
 }
 
 /* ---- Vignette ---- */
@@ -1077,9 +1129,13 @@ $('dlBtn').addEventListener('click', async () => {
     }
 
     const wmH = app.watermarkOn ? 72 : 0;
+    // 指令5: 从原始处理结果导出，不复用预览blend canvas
+    const exportSrc = document.createElement('canvas');
+    exportSrc.width = app.procData.proc.width; exportSrc.height = app.procData.proc.height;
+    exportSrc.getContext('2d').putImageData(app.procData.proc, 0, 0);
     const ec = document.createElement('canvas'); ec.width = ow; ec.height = oh + wmH;
     const ectx = ec.getContext('2d');
-    ectx.drawImage(hc, 0, 0, ow, oh);
+    ectx.drawImage(exportSrc, 0, 0, ow, oh);
 
     if (res !== 'original') { pt.textContent = 'Sharpening...'; await sleep(300);
       // Local-canvas USM for export
