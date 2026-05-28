@@ -481,7 +481,8 @@ const app = {
   dragging: false,
   watermarkOn: false,
   showParams: false,
-  debounceTimer: null
+  debounceTimer: null,
+  luts: {}               // loaded LUT data keyed by mode
 };
 
 const $ = id => document.getElementById(id);
@@ -518,6 +519,43 @@ function buildGrainCache(w, h) {
 }
 function getGrain(x, y, w) {
   return grainCache ? grainCache[Math.min(y, grainH - 1) * grainW + Math.min(x, grainW - 1)] : (Math.random() - 0.5);
+}
+
+/* ---- LUT loader & applicator (指令25) ---- */
+async function loadCube(url) {
+  const text = await (await fetch(url)).text();
+  const size = parseInt(text.match(/LUT_3D_SIZE\s+(\d+)/)?.[1] || '33');
+  const data = [];
+  for (const line of text.split('\n')) {
+    const t = line.trim();
+    if (t && !t.startsWith('#') && !t.match(/^[A-Z]/)) {
+      const p = t.split(/\s+/);
+      if (p.length === 3) data.push(parseFloat(p[0]), parseFloat(p[1]), parseFloat(p[2]));
+    }
+  }
+  return { size, data };
+}
+function applyLUT(r, g, b, lut) {
+  const s = lut.size - 1, sz = lut.size;
+  const ri = r / 255 * s, gi = g / 255 * s, bi = b / 255 * s;
+  const r0 = Math.floor(ri), g0 = Math.floor(gi), b0 = Math.floor(bi);
+  const r1 = Math.min(r0 + 1, s), g1 = Math.min(g0 + 1, s), b1 = Math.min(b0 + 1, s);
+  const rf = ri - r0, gf = gi - g0, bf = bi - b0;
+  const idx = (ri2, gi2, bi2) => (bi2 * sz * sz + gi2 * sz + ri2) * 3;
+  const d = lut.data, L = lerp;
+  return [0, 1, 2].map(i =>
+    Math.round(L(L(L(d[idx(r0,g0,b0)+i], d[idx(r1,g0,b0)+i], rf),
+                   L(d[idx(r0,g1,b0)+i], d[idx(r1,g1,b0)+i], rf), gf),
+               L(L(d[idx(r0,g0,b1)+i], d[idx(r1,g0,b1)+i], rf),
+                   L(d[idx(r0,g1,b1)+i], d[idx(r1,g1,b1)+i], rf), gf), bf) * 255)
+  );
+}
+// Apply LUT blend (70% LUT, 30% algorithmic) to a pixel's final RGB
+function lutBlend(r01, g01, b01) {
+  const lut = app.luts[app.mode];
+  if (!lut || !lut.data.length) return [clamp(r01 * 255), clamp(g01 * 255), clamp(b01 * 255)];
+  const mapped = applyLUT(clamp(r01 * 255), clamp(g01 * 255), clamp(b01 * 255), lut);
+  return [clamp(lerp(r01 * 255, mapped[0], 0.7)), clamp(lerp(g01 * 255, mapped[1], 0.7)), clamp(lerp(b01 * 255, mapped[2], 0.7))];
 }
 
 /* ================================================================
@@ -849,7 +887,8 @@ function procBW(data, i, w) {
   let fr = lum, fg = lum, fb = lum;
   if (la > 0 && (r*.2126+g*.7152+b*.0722) > .76) { const hs = la*.15; fr = clamp01(lum+hs*.06); fg = clamp01(lum+hs*.02); fb = clamp01(lum-hs*.02) }
   // gamma encode
-  data[i] = clamp(toSRGB(fr)*255); data[i+1] = clamp(toSRGB(fg)*255); data[i+2] = clamp(toSRGB(fb)*255);
+  const [lr,lg,lb] = lutBlend(toSRGB(fr), toSRGB(fg), toSRGB(fb));
+  data[i] = lr; data[i+1] = lg; data[i+2] = lb;
 }
 function procCCD(data, i, w) {
   const ca = val('ccd'), ga = val('green'), ra = val('richness'), ma = val('micro');
@@ -870,7 +909,8 @@ function procCCD(data, i, w) {
   // spatial grain
   const gn = getGrain(px, py, w) * ma * 0.022; r += gn; g += gn; b += gn;
   // gamma encode
-  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
+  const [lr,lg,lb] = lutBlend(toSRGB(r), toSRGB(g), toSRGB(b));
+  data[i] = lr; data[i+1] = lg; data[i+2] = lb;
 }
 function procM10(data, i, w) {
   const ca = val('m10c'), cool = val('m10cool'), ga = val('m10grain');
@@ -881,7 +921,8 @@ function procM10(data, i, w) {
   r = clamp01(lum+(r-lum)*(1+ca*.3)); g = clamp01(lum+(g-lum)*(1+ca*.3)); b = clamp01(lum+(b-lum)*(1+ca*.3));
   b += cool*.04; r -= cool*.02;
   const gn = getGrain(px, py, w) * ga * 0.015; r += gn; g += gn; b += gn;
-  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
+  const [lr,lg,lb] = lutBlend(toSRGB(r), toSRGB(g), toSRGB(b));
+  data[i] = lr; data[i+1] = lg; data[i+2] = lb;
 }
 function procQ(data, i, w) {
   const warm = val('qwarm'), soft = val('qsoft'), low = val('qlow'), ga = val('qgrain');
@@ -895,7 +936,8 @@ function procQ(data, i, w) {
   r = clamp01(r + .012); g = clamp01(g + .006);
   r = lerp(r, lum, soft*.15); g = lerp(g, lum, soft*.15); b = lerp(b, lum, soft*.15);
   const gn = getGrain(px, py, w) * ga * 0.018; r += gn; g += gn; b += gn;
-  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
+  const [lr,lg,lb] = lutBlend(toSRGB(r), toSRGB(g), toSRGB(b));
+  data[i] = lr; data[i+1] = lg; data[i+2] = lb;
 }
 function procPortra(data, i, w) {
   const warm = val('portrawarm'), skin = val('portraskin'), soft = val('portrasoft'), ga = val('portragrain');
@@ -910,7 +952,8 @@ function procPortra(data, i, w) {
   if (lum < .3) { b = clamp01(b + .012) }
   r = lerp(r, lum, soft*.1); g = lerp(g, lum, soft*.1); b = lerp(b, lum, soft*.1);
   const gn = getGrain(px, py, w) * ga * 0.02; r += gn; g += gn; b += gn;
-  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
+  const [lr,lg,lb] = lutBlend(toSRGB(r), toSRGB(g), toSRGB(b));
+  data[i] = lr; data[i+1] = lg; data[i+2] = lb;
 }
 function procEktar(data, i, w) {
   const sat = val('ektarsat'), vivid = val('ektarvivid'), ca = val('ektarcontrast'), ga = val('ektargrain');
@@ -925,7 +968,8 @@ function procEktar(data, i, w) {
   g = clamp01(lerp(g, clamp01(curve(g, M10_PTS)), ca*.3));
   b = clamp01(lerp(b, clamp01(curve(b, M10_PTS)), ca*.3));
   const gn = getGrain(px, py, w) * ga * 0.012; r += gn; g += gn; b += gn;
-  data[i] = clamp(toSRGB(r)*255); data[i+1] = clamp(toSRGB(g)*255); data[i+2] = clamp(toSRGB(b)*255);
+  const [lr,lg,lb] = lutBlend(toSRGB(r), toSRGB(g), toSRGB(b));
+  data[i] = lr; data[i+1] = lg; data[i+2] = lb;
 }
 
 /* ---- Vignette ---- */
@@ -1322,6 +1366,17 @@ $('presetFileInput').addEventListener('change', e => {
   };
   reader.readAsText(file);
 });
+
+/* ================================================================
+   LUT PRELOAD (指令26)
+   ================================================================ */
+(async function() {
+  const map = { ccd: 'luts/lut-ccd.cube', m10: 'luts/lut-ccd.cube', q: 'luts/lut-kodachrome.cube', portra: 'luts/lut-kodachrome.cube', ektar: 'luts/lut-ektar.cube', bw: 'luts/lut-bw.cube' };
+  for (const [mode, path] of Object.entries(map)) {
+    try { app.luts[mode] = await loadCube(path) } catch (e) { console.warn('LUT加载失败:', mode, e) }
+  }
+  console.log('LUT loaded:', Object.keys(app.luts).join(', '));
+})();
 
 </script>
 </body>
