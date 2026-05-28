@@ -720,15 +720,17 @@ document.addEventListener('input',e=>{
 
 /* ── UPLOAD ─────────────────── */
 const fileInput=$('fileInput'),fileInput2=$('fileInput2');
-$('heroUploadBtn').addEventListener('click',()=>fileInput.click());
+$('heroUploadBtn').addEventListener('click',()=>{fileInput.value='';fileInput.click()});
 fileInput.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
 fileInput2.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
 
 const uploadZone=$('uploadZone');
-['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();uploadZone.classList.add('drag')}));
-['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();uploadZone.classList.remove('drag')}));
+let dragCounter=0;
+document.addEventListener('dragenter',e=>{e.preventDefault();dragCounter++;uploadZone.classList.add('drag')});
+document.addEventListener('dragover',e=>{e.preventDefault()});
+document.addEventListener('dragleave',e=>{e.preventDefault();dragCounter--;if(dragCounter<=0){dragCounter=0;uploadZone.classList.remove('drag')}});
 document.addEventListener('drop',e=>{
-  e.preventDefault();uploadZone.classList.remove('drag');
+  e.preventDefault();dragCounter=0;uploadZone.classList.remove('drag');
   const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadFile(f);
 });
 
@@ -842,7 +844,7 @@ async function fullProcess(){
     try{procData={orig:origCopy,proc:ctx.getImageData(0,0,w,h)}}
     catch(e){throw new Error('合成失败：'+e.message)}
 
-    await stepOverlay(4);await sleep(200);
+    await stepOverlay(4);
     hideProcOverlay();
     showWorkspace();
     blendToPreview();
@@ -965,6 +967,7 @@ $('cmpSlider').addEventListener('click',()=>{
   $('cmpSlider').classList.add('active');$('cmpSlider').style.borderColor='var(--red)';
   $('cmpSide').classList.remove('active');$('cmpSide').style.borderColor='var(--border)';
   $('wsProcWrap').style.display='block';$('wsLine').style.display='block';$('wsKnob').style.display='block';
+  const origC=$('cmpOrig');origC.style.width='';origC.style.height='';origC.style.display='';
   if(srcImg)updateDiv();
 });
 $('cmpSide').addEventListener('click',()=>{
@@ -1091,15 +1094,16 @@ function applyCCD(data,w,h){
   }
 }
 function applyVignette(ctx,w,h){
-  const vid=mode==='bw'?'vignette':'vignette2',v=val(vid);if(v===0)return;
+  const vMap={bw:'vignette',ccd:'vignette2',m10:'m10vignette',q:'qvignette',portra:'portravignette',ektar:'ektarvignette'};
+  const v=val(vMap[mode]||'vignette2');if(v===0)return;
   const g=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.22,w*0.5,h*0.5,Math.max(w*0.72,h*0.72));
   g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(0.5,`rgba(0,0,0,${v*0.08})`);
   g.addColorStop(0.85,`rgba(0,0,0,${v*0.35})`);g.addColorStop(1,`rgba(0,0,0,${v*0.70})`);
   ctx.globalCompositeOperation='multiply';ctx.fillStyle=g;ctx.fillRect(0,0,w,h);ctx.globalCompositeOperation='source-over';
 }
 function applyClarity(ctx,w,h){
-  tmpCanvas.width=w;tmpCanvas.height=h;
-  const tc=tmpCanvas.getContext('2d');tc.filter='blur(6px)';tc.drawImage(ctx.canvas,0,0);
+  const tc2=document.createElement('canvas');tc2.width=w;tc2.height=h;
+  const tc=tc2.getContext('2d');tc.filter='blur(6px)';tc.drawImage(ctx.canvas,0,0);
   const orig=ctx.getImageData(0,0,w,h),blur=tc.getImageData(0,0,w,h);
   for(let i=0;i<orig.data.length;i+=4){
     const lum=orig.data[i]*0.299+orig.data[i+1]*0.587+orig.data[i+2]*0.114,mid=1-Math.abs(lum/255-0.5)*2.8;
@@ -1107,8 +1111,8 @@ function applyClarity(ctx,w,h){
   }ctx.putImageData(orig,0,0);
 }
 function applyUSM(ctx,w,h){
-  tmpCanvas.width=w;tmpCanvas.height=h;
-  const tc=tmpCanvas.getContext('2d');tc.filter='blur(1px)';tc.drawImage(ctx.canvas,0,0);
+  const tc2=document.createElement('canvas');tc2.width=w;tc2.height=h;
+  const tc=tc2.getContext('2d');tc.filter='blur(1px)';tc.drawImage(ctx.canvas,0,0);
   const orig=ctx.getImageData(0,0,w,h),blur=tc.getImageData(0,0,w,h);
   for(let i=0;i<orig.data.length;i+=4){for(let c=0;c<3;c++){const d=orig.data[i+c]-blur.data[i+c];if(Math.abs(d)>6)orig.data[i+c]=clamp(orig.data[i+c]+d*0.5)}}ctx.putImageData(orig,0,0);
 }

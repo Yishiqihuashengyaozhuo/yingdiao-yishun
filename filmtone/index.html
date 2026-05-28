@@ -507,15 +507,17 @@ $('resetBtn').addEventListener('click',()=>{
 
 /* ── UPLOAD ─────────────────── */
 const fileInput=$('fileInput'),fileInput2=$('fileInput2');
-$('heroUploadBtn').addEventListener('click',()=>fileInput.click());
+$('heroUploadBtn').addEventListener('click',()=>{fileInput.value='';fileInput.click()});
 fileInput.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
 fileInput2.addEventListener('change',e=>{if(e.target.files[0])loadFile(e.target.files[0])});
 
 const uploadZone=$('uploadZone');
-['dragenter','dragover'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();uploadZone.classList.add('drag')}));
-['dragleave','drop'].forEach(ev=>document.addEventListener(ev,e=>{e.preventDefault();uploadZone.classList.remove('drag')}));
+let dragCounter=0;
+document.addEventListener('dragenter',e=>{e.preventDefault();dragCounter++;uploadZone.classList.add('drag')});
+document.addEventListener('dragover',e=>{e.preventDefault()});
+document.addEventListener('dragleave',e=>{e.preventDefault();dragCounter--;if(dragCounter<=0){dragCounter=0;uploadZone.classList.remove('drag')}});
 document.addEventListener('drop',e=>{
-  e.preventDefault();uploadZone.classList.remove('drag');
+  e.preventDefault();dragCounter=0;uploadZone.classList.remove('drag');
   const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))loadFile(f);
 });
 
@@ -735,7 +737,7 @@ async function stepOverlay(idx){
   steps.forEach(el=>el.classList.remove('current'));
   if(steps[idx]){steps[idx].classList.add('current');steps[idx].style.opacity='1'}
   for(let i=0;i<idx;i++){if(steps[i]){steps[i].classList.add('done');steps[i].style.opacity='0.7'}}
-  await sleep(500+Math.random()*200);
+  await sleep(120);
 }
 
 /* ── BLEND & SHOW ───────────── */
@@ -907,7 +909,8 @@ function applyCCD(data,w,h){
   }
 }
 function applyVignette(ctx,w,h){
-  const vid=mode==='bw'?'vignette':'vignette2',v=val(vid);if(v===0)return;
+  const vMap={bw:'vignette',ccd:'vignette2'};
+  const v=val(vMap[mode]||'vignette2');if(v===0)return;
   const g=ctx.createRadialGradient(w/2,h/2,Math.min(w,h)*0.22,w*0.5,h*0.5,Math.max(w*0.72,h*0.72));
   g.addColorStop(0,'rgba(0,0,0,0)');g.addColorStop(0.5,`rgba(0,0,0,${v*0.08})`);
   g.addColorStop(0.85,`rgba(0,0,0,${v*0.35})`);g.addColorStop(1,`rgba(0,0,0,${v*0.70})`);
