@@ -3,9 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <title>影调一瞬 · 创意工具集</title>
 <style>
 /* ═══════════════════════════════════════════════════
@@ -28,7 +25,7 @@
 }
 
 *{box-sizing:border-box;margin:0;padding:0}
-html{font-size:16px;-webkit-font-smoothing:antialiased}
+html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
 body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s;overflow-x:hidden}
 ::selection{background:var(--red);color:#fff}
 a{text-decoration:none;color:inherit}
@@ -40,6 +37,9 @@ header{
   background:var(--glass);backdrop-filter:blur(20px) saturate(180%);
   -webkit-backdrop-filter:blur(20px) saturate(180%);
   border-bottom:1px solid var(--border);transition:all 0.4s;
+}
+@supports not (backdrop-filter:blur(1px)){
+  header{background:var(--bg2)}
 }
 .hd-logo{display:flex;align-items:center;gap:10px}
 .hd-logo svg{width:22px;height:22px;flex-shrink:0}
@@ -56,6 +56,24 @@ header{
   transition:all 0.2s var(--ease);font-size:16px;
 }
 .hd-theme:hover{border-color:var(--border-on);color:var(--text)}
+.hd-menu{
+  display:none;width:36px;height:36px;border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--t2);cursor:pointer;font-size:18px;
+  align-items:center;justify-content:center;
+}
+.hd-menu.open{color:var(--text);border-color:var(--red)}
+.hd-dropdown{
+  display:none;position:absolute;top:56px;left:0;right:0;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+  padding:12px 24px;flex-direction:column;gap:4px;z-index:99;
+}
+.hd-dropdown.open{display:flex}
+.hd-dropdown a{
+  font-size:14px;color:var(--t2);padding:10px 0;border-bottom:1px solid var(--border);
+  font-weight:500;
+}
+.hd-dropdown a:last-child{border-bottom:none}
+.hd-dropdown a:hover{color:var(--text)}
 
 /* ═════════════════════ HERO ═════════════════════ */
 .hero{
@@ -97,6 +115,25 @@ header{
   font-size:clamp(16px,2.2vw,20px);color:var(--t2);
   letter-spacing:-0.3px;line-height:1.6;max-width:520px;margin:0 auto 40px;
 }
+.hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* Hero buttons (extracted from inline styles) */
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
+  background:var(--red);color:#fff;border:none;cursor:pointer;
+  transition:all 0.25s var(--ease);letter-spacing:-0.2px;
+  text-decoration:none;
+}
+.btn-primary:hover{background:var(--red-h);transform:translateY(-1px)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
+  background:transparent;color:var(--text);border:1px solid var(--border);cursor:pointer;
+  transition:all 0.25s var(--ease);letter-spacing:-0.2px;
+  text-decoration:none;
+}
+.btn-ghost:hover{border-color:var(--border-on);transform:translateY(-1px)}
 
 /* ═════════════════════ PROJECTS GRID ═════════════════════ */
 .section{padding:80px 24px}
@@ -118,7 +155,10 @@ header{
   background:var(--bg2);border:1px solid var(--border);border-radius:20px;
   overflow:hidden;cursor:pointer;position:relative;
   transition:all 0.35s var(--ease);
+  animation:fadeUp 0.6s var(--ease) both;
 }
+.card:nth-child(1){animation-delay:0.1s}
+.card:nth-child(2){animation-delay:0.2s}
 .card:hover{
   transform:translateY(-4px);
   box-shadow:0 12px 40px rgba(0,0,0,0.25);
@@ -208,10 +248,34 @@ footer a:hover{opacity:0.7}
 @media(max-width:640px){
   .grid{grid-template-columns:1fr}
   .hd-links{display:none}
+  .hd-menu{display:flex}
+  header{flex-wrap:wrap}
   .stats{gap:32px}
   .stat-val{font-size:28px}
 }
+
+/* ═════════════════════ REDUCED MOTION ═════════════════════ */
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:0.01ms!important;
+    animation-iteration-count:1!important;
+    transition-duration:0.01ms!important;
+    scroll-behavior:auto!important;
+  }
+}
 </style>
+
+<!-- Theme init: runs synchronously before body renders to prevent FOUC -->
+<script>
+(function(){
+  var t=localStorage.getItem('theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.addEventListener('DOMContentLoaded',function(){
+    var el=document.getElementById('themeIcon');
+    if(el) el.innerHTML=t==='dark'?'&#9790;':'&#9788;';
+  });
+})();
+</script>
 </head>
 <body>
 
@@ -229,9 +293,14 @@ footer a:hover{opacity:0.7}
     <a href="#projects">Projects</a>
     <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank">GitHub</a>
   </nav>
+  <button class="hd-menu" id="menuBtn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
   <button class="hd-theme" onclick="toggleTheme()" aria-label="Toggle theme">
     <span id="themeIcon">&#9790;</span>
   </button>
+  <nav class="hd-dropdown" id="dropdown">
+    <a href="#projects" onclick="toggleMenu()">Projects</a>
+    <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank" onclick="toggleMenu()">GitHub</a>
+  </nav>
 </header>
 
 <!-- HERO -->
@@ -241,24 +310,12 @@ footer a:hover{opacity:0.7}
     <div class="hero-badge">Open Source Creative Tools</div>
     <h1>影调一瞬</h1>
     <p>用光影讲述故事。<br>一套面向创作者的在线胶片模拟与视觉工具集。</p>
-    <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
-      <a href="#projects" style="
-        display:inline-flex;align-items:center;gap:8px;
-        padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
-        background:var(--red);color:#fff;
-        transition:all 0.25s var(--ease);letter-spacing:-0.2px;
-      " onmouseover="this.style.background='var(--red-h)';this.style.transform='translateY(-1px)'"
-         onmouseout="this.style.background='var(--red)';this.style.transform='translateY(0)'">
+    <div class="hero-actions">
+      <a class="btn-primary" href="#projects">
         Explore Tools
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
-      <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank" style="
-        display:inline-flex;align-items:center;gap:8px;
-        padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
-        background:transparent;color:var(--text);border:1px solid var(--border);
-        transition:all 0.25s var(--ease);letter-spacing:-0.2px;
-      " onmouseover="this.style.borderColor='var(--border-on)';this.style.transform='translateY(-1px)'"
-         onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+      <a class="btn-ghost" href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
         Source Code
       </a>
@@ -274,7 +331,7 @@ footer a:hover{opacity:0.7}
   </div>
   <div class="grid">
 
-    <a class="card" href="%E5%BE%95%E5%8D%A1%E8%83%B6%E7%89%87%E6%A8%A1%E6%8B%9F.html?v=7" style="animation:fadeUp 0.6s var(--ease) 0.1s both">
+    <a class="card" href="leica-film-sim/index.html">
       <div class="card-visual v1">
         <div class="icon">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -298,7 +355,7 @@ footer a:hover{opacity:0.7}
       </div>
     </a>
 
-    <a class="card" href="filmtone/index.html" style="animation:fadeUp 0.6s var(--ease) 0.2s both">
+    <a class="card" href="filmtone/index.html">
       <div class="card-visual v2">
         <div class="icon">
           <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -309,6 +366,7 @@ footer a:hover{opacity:0.7}
             <line x1="17" y1="17" x2="22" y2="17"/>
           </svg>
         </div>
+        <div class="float-badge">Lite</div>
       </div>
       <div class="card-body">
         <div class="card-tag">Film Tone</div>
@@ -323,7 +381,6 @@ footer a:hover{opacity:0.7}
         </div>
       </div>
     </a>
-
 
   </div>
 </section>
@@ -356,17 +413,16 @@ footer a:hover{opacity:0.7}
 
 <script>
 function toggleTheme(){
-  const h=document.documentElement;
-  const isDark=h.getAttribute('data-theme')==='dark';
+  var h=document.documentElement;
+  var isDark=h.getAttribute('data-theme')==='dark';
   h.setAttribute('data-theme',isDark?'light':'dark');
   document.getElementById('themeIcon').innerHTML=isDark?'&#9788;':'&#9790;';
   localStorage.setItem('theme',isDark?'light':'dark');
 }
-(function(){
-  const t=localStorage.getItem('theme')||'dark';
-  document.documentElement.setAttribute('data-theme',t);
-  document.getElementById('themeIcon').innerHTML=t==='dark'?'&#9790;':'&#9788;';
-})();
+function toggleMenu(){
+  document.getElementById('menuBtn').classList.toggle('open');
+  document.getElementById('dropdown').classList.toggle('open');
+}
 </script>
 </body>
 </html>

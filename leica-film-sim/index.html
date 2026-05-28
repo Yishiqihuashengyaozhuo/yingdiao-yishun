@@ -1,0 +1,1232 @@
+<!DOCTYPE html>
+<html lang="zh" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>影调一瞬 · 徕卡胶片模拟器</title>
+<style>
+:root{
+  --bg:#000;--bg2:#1C1C1E;--glass:rgba(28,28,30,.72);
+  --text:#FFF;--t2:#636366;--t3:#8E8E93;
+  --border:rgba(255,255,255,.10);--border-on:rgba(255,255,255,.16);
+  --red:#D50032;--red-h:#E01040;--red-glow:rgba(213,0,50,.20);
+  --track:#3A3A3C;
+  --en:'SF Pro',-apple-system,'Segoe UI',Roboto,sans-serif;
+  --cn:'PingFang SC','Noto Sans SC','Microsoft YaHei',sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+[data-theme="light"]{
+  --bg:#F5F5F7;--bg2:#FFF;--glass:rgba(255,255,255,.72);
+  --text:#1D1D1F;--t2:#6E6E73;--t3:#86868B;
+  --border:rgba(0,0,0,.08);--border-on:rgba(0,0,0,.14);--track:#D2D2D7;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:var(--cn);background:var(--bg);color:var(--text);
+  min-height:100vh;min-height:100dvh;transition:background .4s,color .4s;
+  touch-action:pan-y;overflow-x:hidden}
+::selection{background:var(--red);color:#fff}
+
+/* HEADER */
+header{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
+  display:flex;align-items:center;padding:0 24px;gap:12px;
+  background:var(--glass);backdrop-filter:blur(20px) saturate(180%);
+  -webkit-backdrop-filter:blur(20px) saturate(180%);
+  border-bottom:1px solid var(--border)}
+.hd-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:inherit}
+.hd-logo svg{width:22px;height:22px;flex-shrink:0}
+.hd-name{font-size:17px;font-weight:600;letter-spacing:-.3px}
+.hd-sub{font-family:var(--en);font-size:10px;color:var(--t3);margin-left:4px}
+.hd-spacer{flex:1}
+.hd-theme{width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
+  background:0;color:var(--t2);cursor:pointer;display:flex;align-items:center;
+  justify-content:center;font-size:16px;transition:all .2s var(--ease)}
+.hd-theme:hover{border-color:var(--border-on);color:var(--text)}
+
+/* MAIN */
+main{padding-top:56px}
+.container{max-width:960px;margin:0 auto;padding:0 24px}
+
+/* HERO */
+.hero{text-align:center;padding:64px 0 32px;animation:fadeUp .6s var(--ease) both}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.hero-label{font-family:var(--en);font-size:12px;font-weight:500;letter-spacing:.5px;
+  text-transform:uppercase;color:var(--red);margin-bottom:16px}
+.hero h2{font-size:36px;font-weight:600;letter-spacing:-.8px;line-height:1.22;margin-bottom:12px}
+.hero p{font-size:16px;color:var(--t2);letter-spacing:-.3px}
+
+/* MODE CARDS */
+.mode-row{display:flex;justify-content:center;gap:12px;margin-top:24px;flex-wrap:wrap}
+.mode-card{background:var(--bg2);border:1px solid var(--border);border-radius:16px;
+  padding:14px 16px;cursor:pointer;transition:all .2s var(--ease);
+  text-align:left;outline:0;min-width:140px;flex:1;max-width:200px}
+.mode-card:hover{transform:translateY(-2px);box-shadow:0 4px 24px rgba(0,0,0,.2)}
+.mode-card.active{border-color:var(--red);background:var(--red-glow);box-shadow:0 0 0 1px var(--red)}
+.mc-label{font-family:var(--en);font-size:10px;font-weight:500;letter-spacing:.4px;color:var(--red);margin-bottom:6px}
+.mc-name{font-size:16px;font-weight:600;letter-spacing:-.3px;margin-bottom:4px}
+.mc-desc{font-size:11px;color:var(--t3);letter-spacing:-.2px;line-height:1.4}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  cursor:pointer;border:none;font-family:var(--cn);font-size:15px;font-weight:500;
+  letter-spacing:-.3px;user-select:none;outline:0;white-space:nowrap;
+  transition:all .2s var(--ease)}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--red);color:#fff;height:48px;padding:0 24px;border-radius:12px;
+  font-weight:600;box-shadow:0 4px 16px rgba(213,0,50,.3)}
+.btn-primary:hover{background:var(--red-h)}
+.btn-secondary{background:var(--bg2);color:var(--text);height:48px;padding:0 20px;
+  border-radius:12px;border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--border-on)}
+.btn-ghost{background:0;color:var(--t2);height:40px;padding:0 16px;
+  border-radius:8px;border:1px solid var(--border)}
+.btn-ghost:hover{color:var(--text);border-color:var(--border-on)}
+.btn-sm{height:36px;font-size:12px;padding:0 12px}
+
+/* UPLOAD ZONE — only visible when workspace is NOT active */
+#uploadWrap{margin-top:32px}
+.upload-zone{background:var(--bg2);border:2px dashed var(--border);border-radius:16px;
+  cursor:pointer;position:relative;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:12px;
+  transition:all .3s var(--ease);
+  aspect-ratio:4/3;max-height:480px;margin:0 auto;max-width:640px}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--red);
+  background:rgba(213,0,50,.06);transform:scale(1.01)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;
+  width:100%;height:100%;z-index:2}
+.uz-icon{opacity:.35;transition:opacity .3s;pointer-events:none}
+.upload-zone:hover .uz-icon{opacity:.7}
+.uz-title{font-size:16px;color:var(--t2);pointer-events:none}
+.uz-sub{font-size:12px;color:var(--t3);pointer-events:none}
+
+/* WORKSPACE — hidden until image loaded */
+.workspace{display:none;padding-bottom:48px}
+.workspace.active{display:block}
+
+/* COMPARISON PREVIEW */
+.ws-preview{position:relative;width:100%;margin:0 auto;max-width:900px;touch-action:none;
+  border-radius:16px;overflow:hidden;border:1px solid var(--border)}
+.ws-preview canvas{display:block;width:100%;border-radius:16px}
+.ws-proc-wrap{position:absolute;top:0;left:0;width:50%;height:100%;overflow:hidden;
+  border-right:2px solid var(--red);border-radius:16px 0 0 16px;pointer-events:none}
+.ws-proc-wrap canvas{position:absolute;top:0;left:0;min-width:100%;min-height:100%;
+  object-fit:cover}
+.ws-line{position:absolute;top:0;bottom:0;width:2px;background:rgba(255,255,255,.6);
+  left:50%;pointer-events:none;z-index:5}
+.ws-knob{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  width:32px;height:32px;border-radius:50%;background:#fff;
+  box-shadow:0 2px 20px rgba(0,0,0,.3);pointer-events:none;z-index:6;
+  display:flex;align-items:center;justify-content:center}
+.ws-knob::before{content:'< >';font-size:10px;color:#333;font-weight:700;letter-spacing:2px}
+.ws-label{position:absolute;top:12px;z-index:4;font-family:var(--en);font-size:10px;
+  font-weight:600;letter-spacing:.4px;padding:4px 10px;border-radius:6px;
+  background:rgba(0,0,0,.6);color:#fff;pointer-events:none}
+.ws-label.orig{left:12px}.ws-label.proc{right:12px}
+
+/* CMP BUTTONS */
+.cmp-btns{display:flex;justify-content:center;gap:8px;margin-top:12px}
+
+/* INTENSITY */
+.intensity-bar{display:none;align-items:center;gap:16px;margin-top:24px;
+  max-width:640px;margin-left:auto;margin-right:auto}
+.intensity-bar.show{display:flex}
+.intensity-label{font-family:var(--en);font-size:11px;font-weight:500;color:var(--t3);
+  white-space:nowrap;letter-spacing:.2px}
+.intensity-val{font-family:var(--en);font-size:12px;font-weight:600;color:var(--text);
+  min-width:32px;text-align:right;font-variant-numeric:tabular-nums}
+.intensity-bar input[type=range]{flex:1}
+
+/* PARAM PANEL */
+.param-panel{display:none;margin-top:20px;max-width:640px;margin-left:auto;margin-right:auto}
+.param-panel.open{display:block}
+.param-grid{display:flex;flex-direction:column;gap:14px;background:var(--bg2);
+  border:1px solid var(--border);border-radius:16px;padding:20px}
+.param-row{display:flex;justify-content:space-between;align-items:center}
+.param-name{font-size:12px;color:var(--t2)}
+.param-val{font-family:var(--en);font-size:12px;font-weight:500;color:var(--text);
+  min-width:28px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* CONTROLS */
+.controls{display:none;gap:12px;margin-top:28px;max-width:640px;margin-left:auto;
+  margin-right:auto;flex-wrap:wrap;align-items:center}
+.controls.show{display:flex}
+.controls .spacer{flex:1}
+.ex-select{background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:10px 14px;border-radius:8px;font-family:var(--en);font-size:12px;
+  outline:0;cursor:pointer}
+.ex-select:focus{border-color:var(--red)}
+.ctrl-input{background:var(--bg2);border:1px solid var(--border);color:var(--text);
+  padding:8px 12px;border-radius:8px;font-size:12px;outline:0}
+.ctrl-input:focus{border-color:var(--red)}
+.wm-label{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--t2);
+  cursor:pointer;user-select:none}
+.wm-track{width:40px;height:22px;border-radius:11px;background:var(--track);
+  position:relative;transition:background .2s}
+.wm-track.on{background:var(--red)}
+.wm-knob{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;
+  background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.2);transition:left .2s var(--ease)}
+.wm-track.on .wm-knob{left:20px}
+
+/* PRESET PANEL */
+.preset-panel{display:none;margin-top:16px;max-width:640px;margin-left:auto;
+  margin-right:auto;background:var(--bg2);border:1px solid var(--border);
+  border-radius:12px;padding:16px}
+.preset-panel.show{display:block}
+
+/* INFO */
+.img-info{display:none;text-align:center;margin-top:16px;
+  font-family:var(--en);font-size:11px;color:var(--t3);letter-spacing:.2px}
+
+/* PROGRESS */
+.prog{height:2px;background:var(--track);overflow:hidden;display:none;border-radius:1px;
+  margin-top:20px;max-width:640px;margin-left:auto;margin-right:auto}
+.prog-fill{height:100%;background:var(--red);width:0%;transition:width .15s linear}
+.prog-text{text-align:center;font-family:var(--en);font-size:11px;color:var(--t3);
+  padding:8px 0;display:none}
+.prog-text.show{display:block}
+
+/* OVERLAYS */
+.proc-overlay{display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.92);flex-direction:column;align-items:center;
+  justify-content:center;gap:24px}
+.proc-overlay.active{display:flex}
+.proc-step{font-family:var(--en);font-size:13px;color:var(--t3);transition:all .3s}
+.proc-step.done{color:var(--t2)}.proc-step.current{color:var(--text);font-weight:600}
+.proc-dots{display:flex;gap:6px;margin-bottom:12px}
+.proc-dot{width:6px;height:6px;border-radius:50%;background:var(--track);
+  animation:dotBounce .6s ease-in-out infinite}
+.proc-dot:nth-child(2){animation-delay:.1s}.proc-dot:nth-child(3){animation-delay:.2s}
+@keyframes dotBounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-6px);opacity:1}}
+
+.zoom-bg{display:none;position:fixed;inset:0;z-index:400;background:rgba(0,0,0,.95);
+  align-items:center;justify-content:center;cursor:zoom-out}
+.zoom-bg.open{display:flex}
+.zoom-bg img{max-width:94vw;max-height:94vh;border-radius:4px}
+.save-overlay{display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(0,0,0,.94);flex-direction:column;align-items:center;
+  justify-content:center;gap:20px;padding:24px}
+.save-overlay.active{display:flex}
+.save-overlay img{max-width:92vw;max-height:74vh;border-radius:8px}
+.save-hint{font-size:15px;color:var(--text);text-align:center;line-height:1.8}
+.save-hint small{display:block;font-size:11px;color:var(--t3)}
+
+/* SLIDER */
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;
+  background:var(--track);border-radius:2px;outline:0;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;
+  border-radius:50%;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.2);cursor:grab}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.2);
+  box-shadow:0 2px 16px rgba(0,0,0,.3),0 0 0 2px var(--red)}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:20px 24px;
+  display:flex;align-items:center;gap:24px;font-size:12px;color:var(--t3)}
+footer .spacer{flex:1}
+
+/* MOBILE */
+@media(max-width:767px){
+  header{padding:0 16px;height:48px}.hd-sub{display:none}.hd-name{font-size:15px}
+  .hd-theme{width:40px;height:40px}
+  main{padding-top:48px}
+  .hero{padding:40px 0 24px}.hero h2{font-size:24px}.hero p{font-size:14px}
+  .mode-row{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    padding:4px 16px 12px;gap:10px;scrollbar-width:none}
+  .mode-row::-webkit-scrollbar{display:none}
+  .mode-card{min-width:140px;max-width:none;flex:0 0 auto;padding:12px 14px}
+  .mc-name{font-size:14px}
+  .upload-zone{max-height:240px;aspect-ratio:auto;padding:40px 20px}
+  .container{padding:0 16px}
+  .ws-knob{width:40px;height:40px}
+  .ws-label{font-size:10px;padding:5px 10px}
+  .intensity-bar{gap:12px}
+  .controls{flex-direction:column;align-items:stretch;gap:10px}
+  .controls .spacer{display:none}
+  .ex-select,.ctrl-input{width:100%;height:48px;font-size:14px;padding:12px 14px}
+  .wm-label{justify-content:center;height:48px;font-size:14px}
+  .btn-ghost,.btn-primary,.btn-secondary{width:100%;height:48px;font-size:14px}
+  .btn-primary{height:52px;font-size:16px}
+  .btn-sm{height:44px;font-size:13px}
+  .cmp-btns .btn-sm{flex:1}
+  input[type=range]::-webkit-slider-thumb{width:26px;height:26px}
+  .save-overlay img{max-width:96vw;max-height:60vh}
+  footer{flex-direction:column;text-align:center;gap:8px}
+  footer .spacer{display:none}
+}
+</style>
+</head>
+<body>
+
+<!-- SPLASH -->
+<div id="splash" style="position:fixed;inset:0;z-index:9999;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;
+  transition:opacity .6s ease;pointer-events:auto">
+  <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.2">
+    <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/>
+    <path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="17" cy="7" r="1.5" fill="var(--red)"/>
+  </svg>
+  <div style="font-size:28px;font-weight:600;color:var(--text);letter-spacing:-.5px">影调一瞬</div>
+  <div style="font-family:var(--en);font-size:12px;color:var(--t3);letter-spacing:.5px">LEICA FILM SIMULATOR v3.0</div>
+  <div style="font-size:12px;color:var(--t3);margin-top:8px">纯本地处理 · 隐私安全</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <a href="../index.html" class="hd-logo">
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5">
+      <rect x="3" y="4" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="2"/>
+      <path d="M3 16l5-5 4 4 3-3 6 6"/><circle cx="17" cy="7" r="1.5" fill="var(--red)"/>
+    </svg>
+    <span class="hd-name">影调一瞬</span>
+    <span class="hd-sub">Leica Simulator</span>
+  </a>
+  <span class="hd-spacer"></span>
+  <button class="hd-theme" id="themeBtn" title="切换深浅模式">&#9680;</button>
+</header>
+
+<main>
+<div class="container">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-label">Film Tone Studio v3.0</div>
+    <h2>小米17 Ultra 徕卡同款色彩</h2>
+    <p>6种胶片风格 · 纯本地处理 · 隐私安全 · 支持预设保存</p>
+  </section>
+
+  <!-- MODE SELECTOR -->
+  <div class="mode-row" id="modeRow">
+    <button class="mode-card active" data-mode="ccd">
+      <div class="mc-label">M9 COLOR</div><div class="mc-name">徕卡经典色彩</div>
+      <div class="mc-desc">CCD 油润感 · 暖中间调</div>
+    </button>
+    <button class="mode-card" data-mode="bw">
+      <div class="mc-label">M3 MONOCHROME</div><div class="mc-name">徕卡经典黑白</div>
+      <div class="mc-desc">银盐颗粒 · 影调深邃</div>
+    </button>
+    <button class="mode-card" data-mode="m10">
+      <div class="mc-label">M10 DIGITAL</div><div class="mc-name">徕卡现代数码</div>
+      <div class="mc-desc">高对比 · 冷色调 · 锐利</div>
+    </button>
+    <button class="mode-card" data-mode="q">
+      <div class="mc-label">Q STREET</div><div class="mc-name">徕卡街头快拍</div>
+      <div class="mc-desc">暖调柔和 · 低对比 · 街拍</div>
+    </button>
+    <button class="mode-card" data-mode="portra">
+      <div class="mc-label">PORTRA 400</div><div class="mc-name">经典人像胶片</div>
+      <div class="mc-desc">柔和暖色 · 肤色优化</div>
+    </button>
+    <button class="mode-card" data-mode="ektar">
+      <div class="mc-label">EKTAR 100</div><div class="mc-name">高饱和鲜艳</div>
+      <div class="mc-desc">浓郁色彩 · 细腻颗粒</div>
+    </button>
+  </div>
+
+  <!-- UPLOAD AREA (visible by default, hidden after image load) -->
+  <div id="uploadWrap" style="margin-top:32px">
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="uploadInput" accept="image/*">
+      <svg class="uz-icon" width="44" height="44" viewBox="0 0 24 24" fill="none"
+        stroke="var(--red)" stroke-width="1.2">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+      </svg>
+      <div class="uz-title">拖入照片或点击上传</div>
+      <div class="uz-sub">支持 JPG / PNG / WEBP · 纯本地处理</div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE (hidden until image loaded) -->
+  <div class="workspace" id="workspace">
+
+    <!-- COMPARISON -->
+    <div class="ws-preview" id="wsPreview">
+      <canvas id="cvsOrig"></canvas>
+      <div class="ws-proc-wrap" id="wsProcWrap"><canvas id="cvsProc"></canvas></div>
+      <div class="ws-line" id="wsLine"></div>
+      <div class="ws-knob" id="wsKnob"></div>
+      <span class="ws-label orig">原图</span>
+      <span class="ws-label proc">处理后</span>
+    </div>
+
+    <div class="cmp-btns">
+      <button class="btn btn-ghost btn-sm" id="cmpSliderBtn" style="border-color:var(--red)">滑动对比</button>
+      <button class="btn btn-ghost btn-sm" id="cmpSideBtn">并排对比</button>
+      <button class="btn btn-ghost btn-sm" id="zoomBtn">放大查看</button>
+    </div>
+
+    <!-- INTENSITY -->
+    <div class="intensity-bar" id="intensityBar">
+      <span class="intensity-label">效果强度</span>
+      <input type="range" id="intensitySlider" min="0" max="100" value="80">
+      <span class="intensity-val" id="intensityVal">80%</span>
+    </div>
+
+    <!-- IMAGE INFO -->
+    <div class="img-info" id="imgInfo">
+      <span id="imgDims"></span> · <span id="imgMode"></span> · <span id="imgInt"></span>
+    </div>
+
+    <!-- PARAM PANEL -->
+    <div class="param-panel" id="paramPanel">
+      <div class="param-grid" id="paramGrid"></div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="prog" id="prog"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-text" id="progText"></div>
+
+    <!-- CONTROLS -->
+    <div class="controls" id="controls">
+      <select class="ex-select" id="resSelect">
+        <option value="original">原图尺寸</option>
+        <option value="2k">2K (2560px)</option>
+        <option value="1080p">1080P (1920px)</option>
+        <option value="custom">自定义尺寸</option>
+      </select>
+      <input type="number" id="customSize" placeholder="最大边长px" class="ctrl-input" style="display:none">
+      <select class="ex-select" id="fmtSelect">
+        <option value="jpeg">JPG</option><option value="png">PNG</option><option value="webp">WEBP</option>
+      </select>
+      <select class="ex-select" id="qualitySelect">
+        <option value="0.98">高质量</option><option value="0.92">标准</option><option value="0.85">压缩</option>
+      </select>
+      <label class="wm-label" id="wmToggle">
+        <div class="wm-track" id="wmTrack"><div class="wm-knob"></div></div>水印边框
+      </label>
+      <input type="text" id="wmText" placeholder="自定义水印文字" class="ctrl-input" style="display:none">
+      <span class="spacer"></span>
+      <button class="btn btn-ghost" id="toggleParams">调色参数 &#9656;</button>
+      <button class="btn btn-ghost" id="savePresetBtn">保存预设</button>
+      <button class="btn btn-primary" id="dlBtn" style="height:40px;font-size:13px">导出</button>
+    </div>
+
+    <!-- PRESET PANEL -->
+    <div class="preset-panel" id="presetPanel">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:13px;font-weight:500">我的预设</span>
+        <span style="flex:1"></span>
+        <button class="btn btn-ghost btn-sm" id="exportPresets">导出JSON</button>
+        <button class="btn btn-ghost btn-sm" id="importPresets">导入JSON</button>
+        <input type="file" id="presetFileInput" accept=".json" style="display:none">
+      </div>
+      <div id="presetList" style="display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto"></div>
+      <div style="margin-top:10px;display:flex;gap:8px">
+        <input type="text" id="presetName" placeholder="预设名称" class="ctrl-input" style="flex:1">
+        <button class="btn btn-ghost" id="savePresetConfirm" style="height:44px;font-size:13px;padding:0 16px">保存</button>
+      </div>
+    </div>
+
+  </div><!-- /workspace -->
+</div><!-- /container -->
+</main>
+
+<footer>
+  <span>所有处理均在本地完成，照片不会上传到任何服务器。</span>
+  <span class="spacer"></span>
+  <span>影调一瞬 v3.0 &copy; 2026</span>
+</footer>
+
+<!-- OFFSCREEN CANVASES -->
+<canvas id="hiddenCanvas" style="display:none"></canvas>
+<canvas id="blendCanvas" style="display:none"></canvas>
+
+<!-- ZOOM -->
+<div class="zoom-bg" id="zoomBg"><img id="zoomImg" alt=""></div>
+
+<!-- SAVE OVERLAY (mobile) -->
+<div class="save-overlay" id="saveOverlay">
+  <img id="saveImg" alt="">
+  <div class="save-hint">长按图片保存到相册<small>Long press to save</small></div>
+  <button class="btn btn-secondary" id="saveClose" style="height:48px;padding:0 32px;font-size:15px">关闭</button>
+</div>
+
+<!-- PROCESSING OVERLAY -->
+<div class="proc-overlay" id="procOverlay">
+  <div class="proc-dots"><div class="proc-dot"></div><div class="proc-dot"></div><div class="proc-dot"></div></div>
+  <div style="display:flex;flex-direction:column;gap:6px;align-items:center">
+    <div class="proc-step" data-step="0">读取照片数据...</div>
+    <div class="proc-step" data-step="1">加载色彩矩阵...</div>
+    <div class="proc-step" data-step="2">应用银盐颗粒...</div>
+    <div class="proc-step" data-step="3">计算影调曲线...</div>
+    <div class="proc-step" data-step="4">完成处理</div>
+  </div>
+</div>
+
+<script>
+'use strict';
+
+/* ================================================================
+   CORE STATE
+   ================================================================ */
+const app = {
+  mode: 'ccd',
+  srcImg: null,          // Image or ImageBitmap — null until user uploads
+  procData: null,        // {orig: ImageData, proc: ImageData} after processing
+  divRatio: 0.5,         // comparison slider position 0..1
+  dragging: false,
+  watermarkOn: false,
+  showParams: false,
+  debounceTimer: null
+};
+
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const isMobile = /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) || window.innerWidth < 768;
+const CHUNK = isMobile ? 200000 : 800000;
+
+/* ================================================================
+   HELPERS
+   ================================================================ */
+const clamp = v => Math.max(0, Math.min(255, Math.round(v)));
+const clamp01 = v => Math.max(0, Math.min(1, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+function smoothstep(e0, e1, x) { const t = clamp01((x - e0) / (e1 - e0)); return t * t * (3 - 2 * t) }
+function val(id) { const el = $(id); return el ? parseInt(el.value) / 100 : 0 }
+
+/* ================================================================
+   SPLASH — self-removing, pointer-events disabled after fade
+   ================================================================ */
+setTimeout(() => {
+  const s = $('splash');
+  s.style.opacity = '0';
+  s.style.pointerEvents = 'none';
+  setTimeout(() => { s.style.display = 'none' }, 600);
+}, 1500);
+
+/* ================================================================
+   THEME
+   ================================================================ */
+$('themeBtn').addEventListener('click', () => {
+  const h = document.documentElement, n = h.dataset.theme === 'dark' ? 'light' : 'dark';
+  h.dataset.theme = n;
+  $('themeBtn').textContent = n === 'dark' ? '◐' : '◑';
+});
+
+/* ================================================================
+   FILM MODE PARAMETERS
+   ================================================================ */
+const PARAMS = {
+  bw: [
+    { id: 'grain', label: '颗粒强度', def: 45 }, { id: 'contrast', label: '对比度', def: 60 },
+    { id: 'highlight', label: '高光保留', def: 55 }, { id: 'vignette', label: '暗角强度', def: 40 },
+    { id: 'halation', label: '银盐光晕', def: 25 }
+  ],
+  ccd: [
+    { id: 'ccd', label: 'CCD 偏移', def: 50 }, { id: 'green', label: '绿偏强度', def: 35 },
+    { id: 'richness', label: '油润感', def: 60 }, { id: 'vignette2', label: '暗角强度', def: 30 },
+    { id: 'micro', label: '微颗粒', def: 20 }
+  ],
+  m10: [
+    { id: 'm10c', label: '对比度', def: 65 }, { id: 'm10cool', label: '冷调强度', def: 50 },
+    { id: 'm10vignette', label: '暗角强度', def: 25 }, { id: 'm10grain', label: '颗粒', def: 15 }
+  ],
+  q: [
+    { id: 'qwarm', label: '暖调强度', def: 55 }, { id: 'qsoft', label: '柔和度', def: 60 },
+    { id: 'qlow', label: '低对比', def: 50 }, { id: 'qvignette', label: '暗角', def: 30 },
+    { id: 'qgrain', label: '颗粒', def: 20 }
+  ],
+  portra: [
+    { id: 'portrawarm', label: '暖色偏移', def: 60 }, { id: 'portraskin', label: '肤色优化', def: 65 },
+    { id: 'portrasoft', label: '柔和度', def: 55 }, { id: 'portravignette', label: '暗角', def: 20 },
+    { id: 'portragrain', label: '颗粒', def: 25 }
+  ],
+  ektar: [
+    { id: 'ektarsat', label: '饱和度', def: 70 }, { id: 'ektarvivid', label: '鲜艳度', def: 65 },
+    { id: 'ektarcontrast', label: '对比度', def: 55 }, { id: 'ektarvignette', label: '暗角', def: 25 },
+    { id: 'ektargrain', label: '颗粒', def: 10 }
+  ]
+};
+const VIGNETTE_MAP = { bw: 'vignette', ccd: 'vignette2', m10: 'm10vignette', q: 'qvignette', portra: 'portravignette', ektar: 'ektarvignette' };
+
+/* MODE SWITCH */
+document.querySelectorAll('.mode-card').forEach(card => {
+  card.addEventListener('click', () => {
+    document.querySelectorAll('.mode-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    app.mode = card.dataset.mode;
+    renderSliders();
+    if (app.srcImg) fullProcess();
+  });
+});
+
+/* SLIDER RENDER */
+function debouncedProcess() {
+  clearTimeout(app.debounceTimer);
+  app.debounceTimer = setTimeout(() => { if (app.srcImg) fullProcess() }, 150);
+}
+
+function renderSliders() {
+  const grid = $('paramGrid'), params = PARAMS[app.mode] || PARAMS.ccd;
+  grid.innerHTML = '';
+  params.forEach(p => {
+    const row = document.createElement('div');
+    row.className = 'param-row';
+    row.innerHTML = `<span class="param-name">${p.label}</span><span class="param-val" id="v-${p.id}">${p.def}</span>`;
+    const sl = document.createElement('input');
+    sl.type = 'range'; sl.id = p.id; sl.min = 0; sl.max = 100; sl.step = 1;
+    sl.value = p.def; sl.dataset.def = p.def;
+    grid.appendChild(row); grid.appendChild(sl);
+    const vel = row.querySelector('.param-val');
+    sl.addEventListener('input', () => { vel.textContent = sl.value; debouncedProcess() });
+    sl.addEventListener('dblclick', e => { e.preventDefault(); sl.value = sl.dataset.def; vel.textContent = sl.dataset.def; if (app.srcImg) fullProcess() });
+  });
+}
+renderSliders();
+
+/* INTENSITY SLIDER */
+$('intensitySlider').addEventListener('input', () => {
+  $('intensityVal').textContent = $('intensitySlider').value + '%';
+  if (app.procData) blendToPreview();
+  if (app.srcImg) $('imgInt').textContent = '强度 ' + $('intensitySlider').value + '%';
+});
+
+/* TOGGLE PARAMS */
+$('toggleParams').addEventListener('click', () => {
+  app.showParams = !app.showParams;
+  $('paramPanel').classList.toggle('open', app.showParams);
+  $('toggleParams').textContent = app.showParams ? '调色参数 &#9662;' : '调色参数 &#9656;';
+});
+
+/* WATERMARK TOGGLE */
+$('wmToggle').addEventListener('click', () => {
+  app.watermarkOn = !app.watermarkOn;
+  $('wmTrack').classList.toggle('on', app.watermarkOn);
+  $('wmText').style.display = app.watermarkOn ? 'inline-block' : 'none';
+});
+
+/* ================================================================
+   UPLOAD — single entry point, always resets input value
+   ================================================================ */
+const uploadInput = $('uploadInput');
+
+uploadInput.addEventListener('change', e => {
+  const file = e.target.files && e.target.files[0];
+  if (file) loadFile(file);
+});
+
+/* DRAG & DROP with counter to avoid child-element flicker */
+let dragCnt = 0;
+document.addEventListener('dragenter', e => { e.preventDefault(); dragCnt++; $('uploadZone').classList.add('drag') });
+document.addEventListener('dragover', e => { e.preventDefault() });
+document.addEventListener('dragleave', e => { e.preventDefault(); dragCnt--; if (dragCnt <= 0) { dragCnt = 0; $('uploadZone').classList.remove('drag') } });
+document.addEventListener('drop', e => {
+  e.preventDefault(); dragCnt = 0; $('uploadZone').classList.remove('drag');
+  const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f && f.type && f.type.startsWith('image/')) loadFile(f);
+});
+
+/* PASTE */
+document.addEventListener('paste', e => {
+  const items = e.clipboardData && e.clipboardData.items;
+  if (!items) return;
+  for (const item of items) { if (item.type && item.type.startsWith('image/')) { loadFile(item.getAsFile()); break } }
+});
+
+/* LOAD FILE — FileReader -> Image -> optional resize -> srcImg -> fullProcess */
+function loadFile(file) {
+  if (!file) return;
+  uploadInput.value = ''; // allow re-selecting same file
+
+  const reader = new FileReader();
+  reader.onerror = () => alert('文件读取失败，请重试。');
+  reader.onload = ev => {
+    const img = new Image();
+    img.onerror = () => alert('图片格式不支持或文件已损坏。\n\n请使用 JPG / PNG / WEBP 格式。');
+    img.onload = () => {
+      const w = img.naturalWidth, h = img.naturalHeight;
+      if (!w || !h) { alert('无法读取图片尺寸。'); return }
+
+      const PROC_MAX = isMobile ? 2048 : 4096;
+      if (w > 8192 || h > 8192) { alert('图片过大 (' + w + 'x' + h + ')，最大 8192px。'); return }
+
+      if (w > PROC_MAX || h > PROC_MAX) {
+        const s = PROC_MAX / Math.max(w, h);
+        const nw = Math.round(w * s), nh = Math.round(h * s);
+        const rc = document.createElement('canvas');
+        rc.width = nw; rc.height = nh;
+        rc.getContext('2d').drawImage(img, 0, 0, nw, nh);
+        // Use createImageBitmap (fast, no data-URL overhead) with fallback
+        if (typeof createImageBitmap === 'function') {
+          createImageBitmap(rc).then(bmp => { app.srcImg = bmp; fullProcess() })
+            .catch(() => { app.srcImg = img; fullProcess() });
+        } else {
+          try {
+            const si = new Image();
+            si.onload = () => { app.srcImg = si; fullProcess() };
+            si.onerror = () => { app.srcImg = img; fullProcess() };
+            si.src = rc.toDataURL('image/jpeg', 0.92);
+          } catch (e) { app.srcImg = img; fullProcess() }
+        }
+      } else {
+        app.srcImg = img;
+        fullProcess();
+      }
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+/* ================================================================
+   FULL PROCESS — the core pipeline
+   ================================================================ */
+async function fullProcess() {
+  if (!app.srcImg) return;
+  showOverlay();
+
+  try {
+    const hc = $('hiddenCanvas'), ctx = hc.getContext('2d');
+    if (!ctx) throw new Error('Canvas初始化失败');
+    const w = app.srcImg.naturalWidth || app.srcImg.width;
+    const h = app.srcImg.naturalHeight || app.srcImg.height;
+    if (!w || !h) throw new Error('图片尺寸无效');
+    hc.width = w; hc.height = h;
+    ctx.drawImage(app.srcImg, 0, 0);
+
+    await overlayStep(0); await sleep(16);
+
+    let origCopy, procId;
+    try {
+      origCopy = ctx.getImageData(0, 0, w, h);
+      procId = ctx.getImageData(0, 0, w, h);
+    } catch (e) { throw new Error('读取像素失败: ' + e.message) }
+
+    await overlayStep(1); await sleep(16);
+
+    try {
+      const fn = getProcessor(app.mode);
+      await processChunked(procId.data, w, h, fn);
+    } catch (e) { throw new Error('色彩处理失败: ' + e.message) }
+
+    ctx.putImageData(procId, 0, 0);
+    await overlayStep(2); await sleep(16);
+
+    try { await clarityAsync(ctx, w, h) } catch (e) { console.warn('clarity fail', e) }
+    try { await usmAsync(ctx, w, h) } catch (e) { console.warn('usm fail', e) }
+    applyVignette(ctx, w, h);
+
+    await overlayStep(3); await sleep(16);
+
+    try { app.procData = { orig: origCopy, proc: ctx.getImageData(0, 0, w, h) } }
+    catch (e) { throw new Error('合成失败: ' + e.message) }
+
+    await overlayStep(4);
+    hideOverlay();
+    activateWorkspace();
+    blendToPreview();
+  } catch (err) {
+    hideOverlay();
+    const msg = (err && err.message) ? err.message : String(err);
+    alert('图片处理失败: ' + msg + '\n\n请尝试更小的图片或 JPG 格式。');
+    console.error('Process error:', err);
+  }
+}
+
+/* ================================================================
+   CHUNKED PIXEL PROCESSING
+   ================================================================ */
+function processChunked(data, w, h, fn) {
+  const total = w * h; let idx = 0;
+  function chunk() {
+    const end = Math.min(idx + CHUNK, total);
+    for (let p = idx; p < end; p++) fn(data, p * 4, w, h);
+    idx = end;
+    if (idx < total) return new Promise(r => setTimeout(r, 0)).then(chunk);
+    return Promise.resolve();
+  }
+  return chunk();
+}
+
+function getProcessor(mode) {
+  const map = { bw: procBW, ccd: procCCD, m10: procM10, q: procQ, portra: procPortra, ektar: procEktar };
+  return map[mode] || procCCD;
+}
+
+/* ---- Film curve ---- */
+function curve(t, pts) {
+  if (t <= pts[0][0]) return pts[0][1];
+  if (t >= pts[pts.length - 1][0]) return pts[pts.length - 1][1];
+  for (let i = 0; i < pts.length - 1; i++) {
+    if (t >= pts[i][0] && t <= pts[i + 1][0]) {
+      return pts[i][1] + (t - pts[i][0]) / (pts[i + 1][0] - pts[i][0]) * (pts[i + 1][1] - pts[i][1]);
+    }
+  }
+  return t;
+}
+const BW_PTS = [[0,0],[.251,.157],[.502,.502],[.753,.745],[1,1]];
+const CCD_PTS = [[0,0],[.251,.196],[.502,.502],[.753,.706],[1,1]];
+const M10_PTS = [[0,0],[.2,.14],[.5,.52],[.8,.82],[1,1]];
+const Q_PTS = [[0,0],[.25,.22],[.5,.48],[.75,.72],[1,.95]];
+const PORTRA_PTS = [[0,0],[.2,.18],[.5,.48],[.8,.76],[1,.96]];
+const EKTAR_PTS = [[0,0],[.15,.1],[.5,.55],[.85,.88],[1,1]];
+
+/* ---- Per-mode processors ---- */
+function procBW(data, i) {
+  const ga = val('grain'), ca = val('contrast'), ha = val('highlight'), la = val('halation');
+  let r = data[i], g = data[i+1], b = data[i+2];
+  let lum = r*.33 + g*.60 + b*.07, t = lum/255;
+  lum = lerp(t, curve(t, BW_PTS), ca) * 255;
+  if (lum > 200 && ha > 0) { const o = (lum-200)/55; lum = 200 + o*55*(1-ha*.5) }
+  const nL = lum/255;
+  lum = clamp(lum + (Math.random()-.5)*2*ga*52*(nL*.85) + (Math.random()-.5)*2*ga*36*(1-Math.abs(nL-.5)*1.4) + (Math.random()-.5)*2*ga*18*(1-nL)*.7);
+  let fr = lum, fg = lum, fb = lum;
+  if (la > 0 && (r*.33+g*.60+b*.07) > 195) { const hs = la*.3; fr = clamp(lum+hs*16); fg = clamp(lum+hs*5); fb = clamp(lum-hs*6) }
+  data[i] = fr; data[i+1] = fg; data[i+2] = fb;
+}
+function procCCD(data, i) {
+  const ca = val('ccd'), ga = val('green'), ra = val('richness'), ma = val('micro');
+  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  r = lerp(r, r*1.35+g*.25, ca); g = lerp(g, g*1.10+ga*.04, ca); b = lerp(b, b*.85, ca);
+  const lum = r*.299+g*.587+b*.114, sat = 1+ra*.35*smoothstep(.12,.88,lum);
+  r = clamp01(lum+(r-lum)*sat); g = clamp01(lum+(g-lum)*sat); b = clamp01(lum+(b-lum)*sat);
+  r = curve(r, CCD_PTS); g = curve(g, CCD_PTS); b = curve(b, CCD_PTS);
+  const l2 = r*.299+g*.587+b*.114;
+  if (l2 > .67) { const f = (l2-.67)/.33; r += f*.025; g += f*.015; b -= f*.008 }
+  if (l2 < .33) { const f = (.33-l2)/.33; b += f*.025; r -= f*.008 }
+  const n = (Math.random()-.5)*ma*.022; r += n; g += n; b += n;
+  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+}
+function procM10(data, i) {
+  const ca = val('m10c'), cool = val('m10cool'), ga = val('m10grain');
+  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  r = curve(r, M10_PTS); g = curve(g, M10_PTS); b = curve(b, M10_PTS);
+  const lum = r*.299+g*.587+b*.114;
+  r = clamp01(lum+(r-lum)*(1+ca*.3)); g = clamp01(lum+(g-lum)*(1+ca*.3)); b = clamp01(lum+(b-lum)*(1+ca*.3));
+  b += cool*.04; r -= cool*.02;
+  const n = (Math.random()-.5)*ga*.015; r += n; g += n; b += n;
+  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+}
+function procQ(data, i) {
+  const warm = val('qwarm'), soft = val('qsoft'), low = val('qlow'), ga = val('qgrain');
+  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  r = curve(r, Q_PTS); g = curve(g, Q_PTS); b = curve(b, Q_PTS);
+  const lum = r*.299+g*.587+b*.114;
+  r = clamp01(lum+(r-lum)*(1-low*.2)); g = clamp01(lum+(g-lum)*(1-low*.2)); b = clamp01(lum+(b-lum)*(1-low*.2));
+  r += warm*.03; g += warm*.015;
+  r = lerp(r, lum, soft*.15); g = lerp(g, lum, soft*.15); b = lerp(b, lum, soft*.15);
+  const n = (Math.random()-.5)*ga*.018; r += n; g += n; b += n;
+  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+}
+function procPortra(data, i) {
+  const warm = val('portrawarm'), skin = val('portraskin'), soft = val('portrasoft'), ga = val('portragrain');
+  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  r = curve(r, PORTRA_PTS); g = curve(g, PORTRA_PTS); b = curve(b, PORTRA_PTS);
+  const lum = r*.299+g*.587+b*.114;
+  r += warm*.025; g += warm*.01;
+  if (r>.4 && g>.3 && b>.25 && r>g && g>b) { const sf = skin*.2; r = clamp01(r+sf*.03); g = clamp01(g+sf*.02) }
+  r = lerp(r, lum, soft*.1); g = lerp(g, lum, soft*.1); b = lerp(b, lum, soft*.1);
+  const n = (Math.random()-.5)*ga*.02; r += n; g += n; b += n;
+  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+}
+function procEktar(data, i) {
+  const sat = val('ektarsat'), vivid = val('ektarvivid'), ca = val('ektarcontrast'), ga = val('ektargrain');
+  let r = data[i]/255, g = data[i+1]/255, b = data[i+2]/255;
+  r = curve(r, EKTAR_PTS); g = curve(g, EKTAR_PTS); b = curve(b, EKTAR_PTS);
+  const lum = r*.299+g*.587+b*.114;
+  r = clamp01(lum+(r-lum)*(1+sat*.4)); g = clamp01(lum+(g-lum)*(1+sat*.4)); b = clamp01(lum+(b-lum)*(1+sat*.4));
+  const maxC = Math.max(r,g,b), minC = Math.min(r,g,b);
+  if (maxC > 0) { const boost = vivid*.15*(maxC-minC); if (r===maxC) r+=boost; else if (g===maxC) g+=boost; else b+=boost }
+  r = clamp01(lerp(r, clamp01(curve(r, M10_PTS)), ca*.3));
+  g = clamp01(lerp(g, clamp01(curve(g, M10_PTS)), ca*.3));
+  b = clamp01(lerp(b, clamp01(curve(b, M10_PTS)), ca*.3));
+  const n = (Math.random()-.5)*ga*.012; r += n; g += n; b += n;
+  data[i] = clamp(r*255); data[i+1] = clamp(g*255); data[i+2] = clamp(b*255);
+}
+
+/* ---- Vignette ---- */
+function applyVignette(ctx, w, h) {
+  const v = val(VIGNETTE_MAP[app.mode] || 'vignette2');
+  if (v === 0) return;
+  const g = ctx.createRadialGradient(w/2, h/2, Math.min(w,h)*.22, w*.5, h*.5, Math.max(w*.72, h*.72));
+  g.addColorStop(0, 'rgba(0,0,0,0)');
+  g.addColorStop(.5, 'rgba(0,0,0,' + v*.08 + ')');
+  g.addColorStop(.85, 'rgba(0,0,0,' + v*.35 + ')');
+  g.addColorStop(1, 'rgba(0,0,0,' + v*.70 + ')');
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.fillStyle = g; ctx.fillRect(0, 0, w, h);
+  ctx.globalCompositeOperation = 'source-over';
+}
+
+/* ---- Async clarity / USM ---- */
+function downsampleBlur(srcData, w, h, radius, ds) {
+  const sw = Math.ceil(w/ds), sh = Math.ceil(h/ds);
+  const sc = document.createElement('canvas'); sc.width = sw; sc.height = sh;
+  const sctx = sc.getContext('2d');
+  const si = sctx.createImageData(sw, sh);
+  for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
+    const sx = Math.min(x*ds, w-1), sy = Math.min(y*ds, h-1);
+    const di = (y*sw+x)*4, si2 = (sy*w+sx)*4;
+    si.data[di] = srcData[si2]; si.data[di+1] = srcData[si2+1]; si.data[di+2] = srcData[si2+2]; si.data[di+3] = 255;
+  }
+  sctx.putImageData(si, 0, 0);
+  const tc = document.createElement('canvas'); tc.width = sw; tc.height = sh;
+  const tctx = tc.getContext('2d');
+  try { tctx.filter = 'blur(' + Math.max(1, Math.round(radius/ds)) + 'px)' } catch (e) {}
+  tctx.drawImage(sc, 0, 0);
+  return tctx.getImageData(0, 0, sw, sh);
+}
+
+async function clarityAsync(ctx, w, h) {
+  const ds = w > 2000 ? 4 : 2;
+  const orig = ctx.getImageData(0, 0, w, h);
+  const blur = downsampleBlur(orig.data, w, h, 6, ds);
+  const sw = Math.ceil(w/ds), total = orig.data.length/4;
+  let idx = 0;
+  function chunk() {
+    const end = Math.min(idx + CHUNK, total);
+    for (let p = idx; p < end; p++) {
+      const i = p*4, sx = Math.floor((p%w)/ds), sy = Math.floor(Math.floor(p/w)/ds);
+      const bi = (sy*sw+sx)*4;
+      const lum = orig.data[i]*.299+orig.data[i+1]*.587+orig.data[i+2]*.114;
+      const mid = 1-Math.abs(lum/255-.5)*2.8;
+      if (mid <= 0) continue;
+      for (let c = 0; c < 3; c++) { const d = orig.data[i+c]-blur.data[bi+c]; orig.data[i+c] = clamp(orig.data[i+c]+d*.15*mid) }
+    }
+    idx = end; ctx.putImageData(orig, 0, 0);
+    if (idx < total) return new Promise(r => setTimeout(r, 0)).then(chunk);
+    return Promise.resolve();
+  }
+  return chunk();
+}
+
+async function usmAsync(ctx, w, h) {
+  const ds = w > 2000 ? 4 : 2;
+  const orig = ctx.getImageData(0, 0, w, h);
+  const blur = downsampleBlur(orig.data, w, h, 1, ds);
+  const sw = Math.ceil(w/ds), total = orig.data.length/4;
+  let idx = 0;
+  function chunk() {
+    const end = Math.min(idx + CHUNK, total);
+    for (let p = idx; p < end; p++) {
+      const i = p*4, sx = Math.floor((p%w)/ds), sy = Math.floor(Math.floor(p/w)/ds);
+      const bi = (sy*sw+sx)*4;
+      for (let c = 0; c < 3; c++) { const d = orig.data[i+c]-blur.data[bi+c]; if (Math.abs(d) > 6) orig.data[i+c] = clamp(orig.data[i+c]+d*.5) }
+    }
+    idx = end; ctx.putImageData(orig, 0, 0);
+    if (idx < total) return new Promise(r => setTimeout(r, 0)).then(chunk);
+    return Promise.resolve();
+  }
+  return chunk();
+}
+
+/* ================================================================
+   OVERLAY HELPERS
+   ================================================================ */
+function showOverlay() {
+  $('procOverlay').classList.add('active');
+  document.querySelectorAll('.proc-step').forEach(el => { el.classList.remove('done', 'current'); el.style.opacity = '.35' });
+}
+function hideOverlay() { $('procOverlay').classList.remove('active') }
+async function overlayStep(idx) {
+  const steps = document.querySelectorAll('.proc-step');
+  steps.forEach(el => el.classList.remove('current'));
+  if (steps[idx]) { steps[idx].classList.add('current'); steps[idx].style.opacity = '1' }
+  for (let i = 0; i < idx; i++) { if (steps[i]) { steps[i].classList.add('done'); steps[i].style.opacity = '.7' } }
+  await sleep(120);
+}
+
+/* ================================================================
+   WORKSPACE ACTIVATION
+   ================================================================ */
+function activateWorkspace() {
+  $('uploadWrap').style.display = 'none';
+  $('workspace').classList.add('active');
+  $('intensityBar').classList.add('show');
+  $('controls').classList.add('show');
+  updateImgInfo();
+  $('workspace').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function updateImgInfo() {
+  if (!app.srcImg) return;
+  const names = { bw: 'M3黑白', ccd: 'M9彩色', m10: 'M10数码', q: 'Q街拍', portra: 'Portra人像', ektar: 'Ektar鲜艳' };
+  const w = app.srcImg.naturalWidth || app.srcImg.width;
+  const h = app.srcImg.naturalHeight || app.srcImg.height;
+  $('imgDims').textContent = w + 'x' + h;
+  $('imgMode').textContent = names[app.mode] || app.mode;
+  $('imgInt').textContent = '强度 ' + $('intensitySlider').value + '%';
+  $('imgInfo').style.display = 'block';
+}
+
+/* ================================================================
+   BLEND & COMPARISON PREVIEW
+   ================================================================ */
+function blendToPreview() {
+  if (!app.procData || !app.procData.orig || !app.procData.proc) return;
+  const intensity = parseInt($('intensitySlider').value) / 100;
+  const orig = app.procData.orig, proc = app.procData.proc;
+  const w = orig.width, h = orig.height;
+
+  // Create blended image
+  const bc = $('blendCanvas'), bctx = bc.getContext('2d');
+  bc.width = w; bc.height = h;
+  const blend = bctx.createImageData(w, h);
+  for (let i = 0; i < blend.data.length; i += 4) {
+    blend.data[i] = clamp(lerp(orig.data[i], proc.data[i], intensity));
+    blend.data[i+1] = clamp(lerp(orig.data[i+1], proc.data[i+1], intensity));
+    blend.data[i+2] = clamp(lerp(orig.data[i+2], proc.data[i+2], intensity));
+    blend.data[i+3] = 255;
+  }
+  bctx.putImageData(blend, 0, 0);
+
+  // Draw orig + processed onto comparison canvases
+  const oC = $('cvsOrig'), pC = $('cvsProc');
+  oC.width = w; oC.height = h;
+  oC.getContext('2d').drawImage(app.srcImg, 0, 0);
+  pC.width = w; pC.height = h;
+  pC.getContext('2d').drawImage(bc, 0, 0);
+
+  // Sync display sizes
+  divSync();
+
+  // Update hidden canvas for export
+  const hc = $('hiddenCanvas');
+  hc.width = w; hc.height = h;
+  hc.getContext('2d').putImageData(blend, 0, 0);
+}
+
+/* ================================================================
+   COMPARISON SLIDER
+   ================================================================ */
+function divSync() {
+  const pv = $('wsPreview'), wrap = $('wsProcWrap'), line = $('wsLine'), knob = $('wsKnob');
+  const oC = $('cvsOrig'), pC = $('cvsProc');
+  const w = pv.offsetWidth, left = w * app.divRatio;
+  wrap.style.width = left + 'px';
+  line.style.left = left + 'px';
+  knob.style.left = left + 'px';
+  pC.style.width = w + 'px'; pC.style.left = '0px';
+  if (oC.width > 0) {
+    const ratio = oC.height / oC.width;
+    pC.style.height = Math.round(w * ratio) + 'px';
+    oC.style.width = w + 'px';
+    oC.style.height = Math.round(w * ratio) + 'px';
+  }
+}
+
+(function initSlider() {
+  const pv = $('wsPreview');
+  pv.addEventListener('mousedown', e => { if (app.srcImg) { app.dragging = true; mv(e) } });
+  pv.addEventListener('touchstart', e => { if (app.srcImg) { app.dragging = true; mv(e) } }, { passive: true });
+  window.addEventListener('mousemove', e => { if (app.dragging) mv(e) });
+  window.addEventListener('touchmove', e => { if (app.dragging) { e.preventDefault(); mv(e) } }, { passive: false });
+  window.addEventListener('mouseup', () => app.dragging = false);
+  window.addEventListener('touchend', () => app.dragging = false);
+  function mv(e) {
+    const r = pv.getBoundingClientRect();
+    const x = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    app.divRatio = Math.max(.01, Math.min(.99, x / r.width));
+    divSync();
+  }
+  window.addEventListener('resize', () => { if (app.srcImg) divSync() });
+})();
+
+/* COMPARISON MODE BUTTONS */
+$('cmpSliderBtn').addEventListener('click', () => {
+  $('cmpSliderBtn').style.borderColor = 'var(--red)';
+  $('cmpSideBtn').style.borderColor = 'var(--border)';
+  $('wsProcWrap').style.display = 'block';
+  $('wsLine').style.display = 'block';
+  $('wsKnob').style.display = 'flex';
+  const oC = $('cvsOrig'); oC.style.width = ''; oC.style.height = ''; oC.style.display = '';
+  if (app.srcImg) divSync();
+});
+$('cmpSideBtn').addEventListener('click', () => {
+  $('cmpSideBtn').style.borderColor = 'var(--red)';
+  $('cmpSliderBtn').style.borderColor = 'var(--border)';
+  $('wsProcWrap').style.display = 'none';
+  $('wsLine').style.display = 'none';
+  $('wsKnob').style.display = 'none';
+  const oC = $('cvsOrig');
+  if (oC.width > 0) { oC.style.width = '49%'; oC.style.height = 'auto'; oC.style.display = 'inline-block' }
+});
+
+/* ZOOM */
+$('zoomBtn').addEventListener('click', () => {
+  if (!app.srcImg) return;
+  try { $('zoomImg').src = $('hiddenCanvas').toDataURL('image/jpeg', .95); $('zoomBg').classList.add('open') } catch (e) {}
+});
+$('zoomBg').addEventListener('click', () => $('zoomBg').classList.remove('open'));
+
+/* RESOLUTION SELECT */
+$('resSelect').addEventListener('change', () => {
+  $('customSize').style.display = $('resSelect').value === 'custom' ? 'inline-block' : 'none';
+});
+
+/* ================================================================
+   EXPORT
+   ================================================================ */
+$('dlBtn').addEventListener('click', async () => {
+  if (!app.procData) { alert('请先上传图片'); return }
+  try {
+    const hc = $('hiddenCanvas'), res = $('resSelect').value, fmt = $('fmtSelect').value;
+    const prog = $('prog'), fill = $('progFill'), pt = $('progText');
+    prog.style.display = 'block'; fill.style.width = '0%'; pt.classList.add('show');
+    pt.textContent = 'Preparing...'; await sleep(400); fill.style.width = '25%';
+
+    let ow = hc.width, oh = hc.height;
+    if (res === '1080p') { const s = 1920/Math.max(ow,oh); ow = Math.round(ow*s); oh = Math.round(oh*s) }
+    if (res === '2k') { const s = 2560/Math.max(ow,oh); ow = Math.round(ow*s); oh = Math.round(oh*s) }
+    if (res === 'custom') {
+      const px = parseInt($('customSize').value);
+      if (!px || px < 100 || px > 8192) { alert('请输入 100-8192 之间的尺寸'); return }
+      const s = px/Math.max(ow,oh); ow = Math.round(ow*s); oh = Math.round(oh*s)
+    }
+
+    const wmH = app.watermarkOn ? 72 : 0;
+    const ec = document.createElement('canvas'); ec.width = ow; ec.height = oh + wmH;
+    const ectx = ec.getContext('2d');
+    ectx.drawImage(hc, 0, 0, ow, oh);
+
+    if (res !== 'original') { pt.textContent = 'Sharpening...'; await sleep(300);
+      // Local-canvas USM for export
+      const tmp = document.createElement('canvas'); tmp.width = ow; tmp.height = oh;
+      const tc = tmp.getContext('2d'); tc.filter = 'blur(1px)'; tc.drawImage(ec, 0, 0, ow, oh);
+      const orig = ectx.getImageData(0, 0, ow, oh), blur = tc.getImageData(0, 0, ow, oh);
+      for (let i = 0; i < orig.data.length; i += 4) for (let c = 0; c < 3; c++) {
+        const d = orig.data[i+c]-blur.data[i+c]; if (Math.abs(d) > 6) orig.data[i+c] = clamp(orig.data[i+c]+d*.5)
+      }
+      ectx.putImageData(orig, 0, 0);
+    }
+
+    if (app.watermarkOn) { pt.textContent = 'Watermark...'; await sleep(300); drawWatermark(ectx, ow, oh, wmH) }
+
+    fill.style.width = '70%'; pt.textContent = 'Encoding...'; await sleep(300); fill.style.width = '90%';
+
+    let mime = 'image/jpeg', ext = 'jpg';
+    if (fmt === 'png') { mime = 'image/png'; ext = 'png' }
+    else if (fmt === 'webp') { mime = 'image/webp'; ext = 'webp' }
+
+    const quality = parseFloat($('qualitySelect').value);
+    const blob = await new Promise(r => ec.toBlob(r, mime, quality));
+    if (!blob) throw new Error('编码失败');
+    fill.style.width = '100%'; pt.textContent = 'Complete'; await sleep(300);
+    prog.style.display = 'none'; pt.classList.remove('show');
+
+    const tags = { bw:'M3黑白', ccd:'M9彩色', m10:'M10数码', q:'Q街拍', portra:'Portra人像', ektar:'Ektar鲜艳' };
+    const tag = tags[app.mode] || '徕卡';
+    if (isMobile) {
+      const url = URL.createObjectURL(blob);
+      $('saveImg').src = url;
+      $('saveOverlay').classList.add('active');
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = '影调一瞬_' + tag + '_' + Date.now() + '.' + ext;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+  } catch (err) {
+    $('prog').style.display = 'none';
+    alert('导出失败: ' + ((err && err.message) || err));
+    console.error('Export error:', err);
+  }
+});
+
+$('saveClose').addEventListener('click', () => $('saveOverlay').classList.remove('active'));
+$('saveOverlay').addEventListener('click', function(e) { if (e.target === this) this.classList.remove('active') });
+
+function drawWatermark(ctx, w, h, bh) {
+  const px = Math.round(w * .04), bl = h + bh * .6, sp = h + Math.round(bh * .22);
+  const custom = $('wmText') && $('wmText').value && $('wmText').value.trim();
+  const title = custom || '影调一瞬 · YINGDIAO';
+  ctx.fillStyle = '#f6f3ed'; ctx.fillRect(0, h, w, bh);
+  ctx.fillStyle = '#d50032'; ctx.fillRect(px, sp, w - px*2, 1);
+  ctx.fillStyle = '#1a1a1a';
+  ctx.font = '600 ' + Math.round(bh*.24) + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillText(title, px, bl);
+  const p = [];
+  document.querySelectorAll('#paramGrid input[type=range]').forEach(sl => {
+    const lbl = sl.previousElementSibling && sl.previousElementSibling.querySelector('.param-name');
+    if (lbl && lbl.textContent.length < 10) p.push(lbl.textContent + '+' + sl.value);
+  });
+  const s = p.slice(0, 5).join(' / ');
+  ctx.font = Math.round(bh*.15) + 'px "PingFang SC","Microsoft YaHei",sans-serif';
+  ctx.fillStyle = '#555';
+  ctx.fillText(s, w - px - ctx.measureText(s).width, bl);
+}
+
+/* ================================================================
+   PRESETS
+   ================================================================ */
+const PRESET_KEY = 'yingdiao_presets_v3';
+let showPreset = false;
+
+$('savePresetBtn').addEventListener('click', () => {
+  showPreset = !showPreset;
+  $('presetPanel').classList.toggle('show', showPreset);
+  if (showPreset) { renderPresetList(); $('presetPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' }) }
+});
+
+function getCurrentParams() {
+  const p = { mode: app.mode, intensity: $('intensitySlider').value };
+  document.querySelectorAll('#paramGrid input[type=range]').forEach(sl => { p[sl.id] = sl.value });
+  return p;
+}
+function applyPreset(preset) {
+  document.querySelectorAll('.mode-card').forEach(c => c.classList.toggle('active', c.dataset.mode === preset.mode));
+  app.mode = preset.mode; renderSliders();
+  $('intensitySlider').value = preset.intensity || 80;
+  $('intensityVal').textContent = (preset.intensity || 80) + '%';
+  Object.keys(preset).forEach(k => {
+    if (k === 'mode' || k === 'intensity' || k === 'name') return;
+    const sl = $(k); if (sl) { sl.value = preset[k]; const v = $('v-' + k); if (v) v.textContent = preset[k] }
+  });
+  if (app.srcImg) fullProcess();
+}
+function renderPresetList() {
+  const list = $('presetList');
+  const presets = JSON.parse(localStorage.getItem(PRESET_KEY) || '[]');
+  if (!presets.length) { list.innerHTML = '<div style="font-size:12px;color:var(--t3);text-align:center;padding:8px">暂无保存的预设</div>'; return }
+  list.innerHTML = '';
+  presets.forEach((p, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--bg);border-radius:8px;cursor:pointer;min-height:44px';
+    row.innerHTML = '<span style="flex:1;font-size:13px;color:var(--text)">' + p.name + '</span><span style="font-size:11px;color:var(--t3)">' + p.mode + '</span>';
+    row.addEventListener('click', () => applyPreset(p));
+    const del = document.createElement('button');
+    del.textContent = '×';
+    del.style.cssText = 'background:0;border:0;color:var(--t3);cursor:pointer;font-size:18px;padding:0 8px;min-width:36px;min-height:36px;display:flex;align-items:center;justify-content:center';
+    del.addEventListener('click', e => { e.stopPropagation(); presets.splice(i, 1); localStorage.setItem(PRESET_KEY, JSON.stringify(presets)); renderPresetList() });
+    row.appendChild(del); list.appendChild(row);
+  });
+}
+$('savePresetConfirm').addEventListener('click', () => {
+  const name = $('presetName').value.trim();
+  if (!name) { alert('请输入预设名称'); return }
+  const presets = JSON.parse(localStorage.getItem(PRESET_KEY) || '[]');
+  presets.push({ ...getCurrentParams(), name });
+  localStorage.setItem(PRESET_KEY, JSON.stringify(presets));
+  $('presetName').value = ''; renderPresetList();
+});
+$('exportPresets').addEventListener('click', () => {
+  const data = localStorage.getItem(PRESET_KEY) || '[]';
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = '影调一瞬_预设.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+$('importPresets').addEventListener('click', () => $('presetFileInput').click());
+$('presetFileInput').addEventListener('change', e => {
+  const file = e.target.files[0]; if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const imported = JSON.parse(ev.target.result);
+      if (!Array.isArray(imported)) { alert('无效的预设文件'); return }
+      const existing = JSON.parse(localStorage.getItem(PRESET_KEY) || '[]');
+      localStorage.setItem(PRESET_KEY, JSON.stringify([...existing, ...imported]));
+      renderPresetList(); alert('成功导入 ' + imported.length + ' 个预设');
+    } catch (err) { alert('文件解析失败: ' + err.message) }
+  };
+  reader.readAsText(file);
+});
+
+</script>
+</body>
+</html>
