@@ -532,9 +532,14 @@ function loadFile(file){
   reader.onload=ev=>{
     const img=new Image();
     img.onload=()=>{
+      if(!img.naturalWidth||!img.naturalHeight){
+        $('heroUploadBtn').textContent='上传照片';
+        alert('无法读取图片尺寸，文件可能已损坏。');return;
+      }
       const PROC_MAX=isMobile?2048:4096;
       const MAX_DIM=8192;
       if(img.naturalWidth>MAX_DIM||img.naturalHeight>MAX_DIM){
+        $('heroUploadBtn').textContent='上传照片';
         alert(`图片尺寸过大（${img.naturalWidth}×${img.naturalHeight}），最大支持 ${MAX_DIM}px。`);return;
       }
       if(img.naturalWidth>PROC_MAX||img.naturalHeight>PROC_MAX){
@@ -542,20 +547,29 @@ function loadFile(file){
         const nw=Math.round(img.naturalWidth*s),nh=Math.round(img.naturalHeight*s);
         const rc=document.createElement('canvas');rc.width=nw;rc.height=nh;
         rc.getContext('2d').drawImage(img,0,0,nw,nh);
-        const si=new Image();si.onload=()=>{srcImg=si;$('resetBtn').disabled=false;fullProcess()};
-        si.onerror=()=>{$('heroUploadBtn').textContent='上传照片';alert('图片处理失败，请尝试更小的图片。')};
-        si.src=rc.toDataURL('image/jpeg',0.95);
+        if(typeof createImageBitmap==='function'){
+          createImageBitmap(rc).then(bmp=>{srcImg=bmp;$('resetBtn').disabled=false;fullProcess()})
+            .catch(()=>{srcImg=img;$('resetBtn').disabled=false;fullProcess()});
+        }else{
+          try{
+            const url=rc.toDataURL('image/jpeg',0.92);
+            const si=new Image();
+            si.onload=()=>{srcImg=si;$('resetBtn').disabled=false;fullProcess()};
+            si.onerror=()=>{srcImg=img;$('resetBtn').disabled=false;fullProcess()};
+            si.src=url;
+          }catch(e){srcImg=img;$('resetBtn').disabled=false;fullProcess()}
+        }
       }else{
         srcImg=img;$('resetBtn').disabled=false;fullProcess();
       }
     };
     img.onerror=()=>{
       $('heroUploadBtn').textContent='上传照片';
-      alert('图片格式不支持或文件已损坏，请尝试 JPG / PNG / WEBP 格式。');
+      alert('图片格式不支持或文件已损坏。\n\n请使用 JPG / PNG / WEBP 格式。');
     };
     img.src=ev.target.result;
   };
-  reader.onerror=()=>$('heroUploadBtn').textContent='上传照片';
+  reader.onerror=()=>{$('heroUploadBtn').textContent='上传照片';alert('文件读取失败，请重试。')};
   reader.readAsDataURL(file);
 }
 
@@ -582,12 +596,14 @@ function blurImageDataAsync(src,w,h,radius,downscale){
   const sc=document.createElement('canvas');sc.width=sw;sc.height=sh;
   const sctx=sc.getContext('2d');const si=sctx.createImageData(sw,sh);
   for(let y=0;y<sh;y++)for(let x=0;x<sw;x++){
-    const si2=(y*sw+x)*4,oi=((y*ds)*w+(x*ds))*4;
-    si.data[si2]=src.data[oi];si.data[si2+1]=src.data[oi+1];si.data[si2+2]=src.data[oi+2];si.data[si2+3]=255;
+    const sx=Math.min(x*ds,w-1),sy=Math.min(y*ds,h-1);
+    const si2=(y*sw+x)*4,oi=(sy*w+sx)*4;
+    si.data[si2]=src[oi]||0;si.data[si2+1]=src[oi+1]||0;si.data[si2+2]=src[oi+2]||0;si.data[si2+3]=255;
   }
   sctx.putImageData(si,0,0);
   const tc=document.createElement('canvas');tc.width=sw;tc.height=sh;
-  const tctx=tc.getContext('2d');tctx.filter='blur('+Math.max(1,Math.round(radius/ds))+'px)';
+  const tctx=tc.getContext('2d');
+  try{tctx.filter='blur('+Math.max(1,Math.round(radius/ds))+'px)'}catch(e){}
   tctx.drawImage(sc,0,0);
   return tctx.getImageData(0,0,sw,sh);
 }
@@ -665,25 +681,36 @@ async function fullProcess(){
 
   try{
     const hc=$('hiddenCanvas'),ctx=hc.getContext('2d');
-    hc.width=srcImg.naturalWidth;hc.height=srcImg.naturalHeight;
+    if(!ctx)throw new Error('Canvas初始化失败');
+    const w=srcImg.naturalWidth||srcImg.width,h=srcImg.naturalHeight||srcImg.height;
+    if(!w||!h)throw new Error('图片尺寸无效 ('+w+'×'+h+')');
+    hc.width=w;hc.height=h;
     ctx.drawImage(srcImg,0,0);
 
     await stepOverlay(0);await sleep(16);
-    const origCopy=ctx.getImageData(0,0,hc.width,hc.height);
-    const procId=ctx.getImageData(0,0,hc.width,hc.height);
+    let origCopy,procId;
+    try{
+      origCopy=ctx.getImageData(0,0,w,h);
+      procId=ctx.getImageData(0,0,w,h);
+    }catch(e){throw new Error('读取像素失败('+w+'×'+h+')：'+e.message)}
 
     await stepOverlay(1);await sleep(16);
-    const processors={bw:procBWChunked,ccd:procCCDChunked};
-    await processPixelsChunked(procId.data,hc.width,hc.height,processors[mode]||procCCDChunked);
+    try{
+      const processors={bw:procBWChunked,ccd:procCCDChunked};
+      await processPixelsChunked(procId.data,w,h,processors[mode]||procCCDChunked);
+    }catch(e){throw new Error('色彩处理失败：'+e.message)}
 
     ctx.putImageData(procId,0,0);
     await stepOverlay(2);await sleep(16);
-    await applyClarityAsync(ctx,hc.width,hc.height);
-    await applyUSMAsync(ctx,hc.width,hc.height);
-    applyVignette(ctx,hc.width,hc.height);
+    try{
+      await applyClarityAsync(ctx,w,h);
+      await applyUSMAsync(ctx,w,h);
+      applyVignette(ctx,w,h);
+    }catch(e){console.warn('Post-processing partial failure:',e)}
     await stepOverlay(3);await sleep(16);
 
-    procData={orig:origCopy,proc:ctx.getImageData(0,0,hc.width,hc.height)};
+    try{procData={orig:origCopy,proc:ctx.getImageData(0,0,w,h)}}
+    catch(e){throw new Error('合成失败：'+e.message)}
     await stepOverlay(4);await sleep(200);
     hideProcOverlay();
     showWorkspace();
@@ -692,7 +719,8 @@ async function fullProcess(){
   }catch(err){
     hideProcOverlay();
     $('heroUploadBtn').textContent='上传照片';
-    alert('图片处理失败：'+err.message);
+    const msg=err&&err.message?err.message:String(err);
+    alert('图片处理失败：'+msg+'\n\n请尝试：\n1. 使用更小的图片\n2. 使用 JPG 格式\n3. 刷新页面重试');
     console.error('Process error:',err);
   }
 }
