@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>影调一瞬 · 创意工具集</title>
 <style>
-/* ═══════════════════════════════════════════════════
-   DESIGN SYSTEM · 影调一瞬 Portfolio
-   ═══════════════════════════════════════════════════ */
 :root{
   --bg:#000;--bg2:#1C1C1E;--glass:rgba(28,28,30,0.72);
   --text:#FFF;--t2:#636366;--t3:#8E8E93;
@@ -23,14 +20,13 @@
   --text:#1D1D1F;--t2:#6E6E73;--t3:#86868B;
   --border:rgba(0,0,0,0.08);--border-on:rgba(0,0,0,0.14);--track:#D2D2D7;
 }
-
 *{box-sizing:border-box;margin:0;padding:0}
 html{font-size:16px;-webkit-font-smoothing:antialiased;scroll-behavior:smooth}
 body{font-family:var(--cn);background:var(--bg);color:var(--text);min-height:100vh;transition:background 0.4s,color 0.4s;overflow-x:hidden}
 ::selection{background:var(--red);color:#fff}
 a{text-decoration:none;color:inherit}
 
-/* ═════════════════════ HEADER ═════════════════════ */
+/* HEADER */
 header{
   position:fixed;top:0;left:0;right:0;z-index:100;height:56px;
   display:flex;align-items:center;padding:0 24px;gap:12px;
@@ -38,17 +34,21 @@ header{
   -webkit-backdrop-filter:blur(20px) saturate(180%);
   border-bottom:1px solid var(--border);transition:all 0.4s;
 }
-@supports not (backdrop-filter:blur(1px)){
-  header{background:var(--bg2)}
-}
+@supports not (backdrop-filter:blur(1px)){header{background:var(--bg2)}}
 .hd-logo{display:flex;align-items:center;gap:10px}
 .hd-logo svg{width:22px;height:22px;flex-shrink:0}
-.hd-name{font-family:var(--cn);font-size:17px;font-weight:600;letter-spacing:-0.3px;color:var(--text)}
-.hd-sub{font-family:var(--en);font-size:10px;color:var(--t3);letter-spacing:-0.2px;margin-left:4px}
+.hd-name{font-size:17px;font-weight:600;letter-spacing:-0.3px}
+.hd-sub{font-family:var(--en);font-size:10px;color:var(--t3);margin-left:4px}
 .hd-spacer{flex:1}
-.hd-links{display:flex;gap:20px;align-items:center}
+.hd-links{display:flex;gap:16px;align-items:center}
 .hd-links a{font-size:13px;color:var(--t2);transition:color 0.2s;font-weight:500}
 .hd-links a:hover{color:var(--text)}
+.hd-cta{
+  display:inline-flex;align-items:center;height:32px;padding:0 14px;
+  border-radius:8px;font-size:13px;font-weight:600;background:var(--red);color:#fff;
+  border:none;cursor:pointer;transition:all 0.2s var(--ease);text-decoration:none;
+}
+.hd-cta:hover{background:var(--red-h)}
 .hd-theme{
   width:36px;height:36px;border-radius:50%;border:1px solid var(--border);
   background:transparent;color:var(--t2);cursor:pointer;
@@ -68,204 +68,98 @@ header{
   padding:12px 24px;flex-direction:column;gap:4px;z-index:99;
 }
 .hd-dropdown.open{display:flex}
-.hd-dropdown a{
-  font-size:14px;color:var(--t2);padding:10px 0;border-bottom:1px solid var(--border);
-  font-weight:500;
-}
+.hd-dropdown a{font-size:14px;color:var(--t2);padding:10px 0;border-bottom:1px solid var(--border);font-weight:500}
 .hd-dropdown a:last-child{border-bottom:none}
 .hd-dropdown a:hover{color:var(--text)}
 
-/* ═════════════════════ HERO ═════════════════════ */
-.hero{
-  min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:56px 24px 0;text-align:center;position:relative;
-}
-.hero-bg{
-  position:absolute;inset:0;overflow:hidden;pointer-events:none;
-}
-.hero-bg::before{
-  content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);
-  width:800px;height:800px;border-radius:50%;
-  background:radial-gradient(circle,rgba(213,0,50,0.12) 0%,transparent 70%);
-  animation:pulse 6s ease-in-out infinite alternate;
-}
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 24px 0;text-align:center;position:relative}
+.hero-bg{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.hero-bg::before{content:'';position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(213,0,50,0.12) 0%,transparent 70%);animation:pulse 6s ease-in-out infinite alternate}
 @keyframes pulse{from{opacity:0.5;transform:translateX(-50%) scale(0.9)}to{opacity:1;transform:translateX(-50%) scale(1.1)}}
-
 .hero-content{position:relative;z-index:1;animation:fadeUp 0.8s var(--ease) both}
 @keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-
-.hero-badge{
-  display:inline-flex;align-items:center;gap:6px;
-  padding:6px 14px;border-radius:100px;
-  background:var(--red-glow);border:1px solid rgba(213,0,50,0.3);
-  font-family:var(--en);font-size:11px;font-weight:600;
-  letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:28px;
-}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:100px;background:var(--red-glow);border:1px solid rgba(213,0,50,0.3);font-family:var(--en);font-size:11px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:28px}
 .hero-badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--red);animation:blink 2s ease-in-out infinite}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
-
-.hero h1{
-  font-size:clamp(40px,7vw,72px);font-weight:700;
-  letter-spacing:-2px;line-height:1.08;margin-bottom:20px;
-  background:linear-gradient(135deg,var(--text) 0%,var(--t2) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-}
-.hero p{
-  font-size:clamp(16px,2.2vw,20px);color:var(--t2);
-  letter-spacing:-0.3px;line-height:1.6;max-width:520px;margin:0 auto 40px;
-}
+.hero h1{font-size:clamp(40px,7vw,72px);font-weight:700;letter-spacing:-2px;line-height:1.08;margin-bottom:20px;background:linear-gradient(135deg,var(--text) 0%,var(--t2) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:clamp(16px,2.2vw,20px);color:var(--t2);letter-spacing:-0.3px;line-height:1.6;max-width:520px;margin:0 auto 40px}
 .hero-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-
-/* Hero buttons (extracted from inline styles) */
-.btn-primary{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
-  background:var(--red);color:#fff;border:none;cursor:pointer;
-  transition:all 0.25s var(--ease);letter-spacing:-0.2px;
-  text-decoration:none;
-}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;background:var(--red);color:#fff;border:none;cursor:pointer;transition:all 0.25s var(--ease);letter-spacing:-0.2px;text-decoration:none}
 .btn-primary:hover{background:var(--red-h);transform:translateY(-1px)}
-.btn-ghost{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;
-  background:transparent;color:var(--text);border:1px solid var(--border);cursor:pointer;
-  transition:all 0.25s var(--ease);letter-spacing:-0.2px;
-  text-decoration:none;
-}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:14px 28px;border-radius:14px;font-weight:600;font-size:15px;background:transparent;color:var(--text);border:1px solid var(--border);cursor:pointer;transition:all 0.25s var(--ease);letter-spacing:-0.2px;text-decoration:none}
 .btn-ghost:hover{border-color:var(--border-on);transform:translateY(-1px)}
 
-/* ═════════════════════ PROJECTS GRID ═════════════════════ */
+/* PROJECTS */
 .section{padding:80px 24px}
-.section-title{
-  text-align:center;margin-bottom:48px;
-}
-.section-title h2{
-  font-size:13px;font-family:var(--en);font-weight:600;
-  letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:12px;
-}
+.section-title{text-align:center;margin-bottom:48px}
+.section-title h2{font-size:13px;font-family:var(--en);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--red);margin-bottom:12px}
 .section-title p{font-size:28px;font-weight:600;letter-spacing:-0.6px;color:var(--text)}
-
-.grid{
-  display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
-  gap:20px;max-width:720px;margin:0 auto;
-}
-
-.card{
-  background:var(--bg2);border:1px solid var(--border);border-radius:20px;
-  overflow:hidden;cursor:pointer;position:relative;
-  transition:all 0.35s var(--ease);
-  animation:fadeUp 0.6s var(--ease) both;
-}
-.card:nth-child(1){animation-delay:0.1s}
-.card:nth-child(2){animation-delay:0.2s}
-.card:hover{
-  transform:translateY(-4px);
-  box-shadow:0 12px 40px rgba(0,0,0,0.25);
-  border-color:var(--border-on);
-}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;max-width:720px;margin:0 auto}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:20px;overflow:hidden;cursor:pointer;position:relative;transition:all 0.35s var(--ease);animation:fadeUp 0.6s var(--ease) both;animation-delay:0.1s}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,0.25);border-color:var(--border-on)}
 .card:hover .card-arrow{transform:translate(2px,-2px);opacity:1}
-
-.card-visual{
-  height:200px;position:relative;overflow:hidden;
-  display:flex;align-items:center;justify-content:center;
-}
-.card-visual.v1{
-  background:linear-gradient(135deg,#1a0a0f 0%,#0d0d0d 50%,#1a0508 100%);
-}
-.card-visual.v2{
-  background:linear-gradient(135deg,#0a0a1a 0%,#0d0d0d 50%,#080d1a 100%);
-}
-.card-visual.v3{
-  background:linear-gradient(135deg,#0a1a0a 0%,#0d0d0d 50%,#0d1a08 100%);
-}
-
-.card-visual .icon{
-  width:72px;height:72px;border-radius:18px;
-  display:flex;align-items:center;justify-content:center;
-  background:var(--glass);backdrop-filter:blur(10px);
-  border:1px solid var(--border);font-size:32px;
-  transition:transform 0.3s var(--ease);
-}
+.card-visual{height:200px;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center}
+.card-visual.v1{background:linear-gradient(135deg,#1a0a0f 0%,#0d0d0d 50%,#1a0508 100%)}
+.card-visual .icon{width:72px;height:72px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:var(--glass);backdrop-filter:blur(10px);border:1px solid var(--border);font-size:32px;transition:transform 0.3s var(--ease)}
 .card:hover .card-visual .icon{transform:scale(1.08)}
-
-.card-visual .float-badge{
-  position:absolute;top:16px;right:16px;
-  padding:4px 10px;border-radius:100px;
-  font-family:var(--en);font-size:10px;font-weight:600;
-  letter-spacing:0.3px;
-  background:rgba(213,0,50,0.15);color:var(--red);
-  border:1px solid rgba(213,0,50,0.25);
-}
-
+.card-visual .float-badge{position:absolute;top:16px;right:16px;padding:4px 10px;border-radius:100px;font-family:var(--en);font-size:10px;font-weight:600;letter-spacing:0.3px;background:rgba(213,0,50,0.15);color:var(--red);border:1px solid rgba(213,0,50,0.25)}
 .card-body{padding:20px 24px 24px}
-.card-tag{
-  font-family:var(--en);font-size:10px;font-weight:600;
-  letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px;
-}
+.card-tag{font-family:var(--en);font-size:10px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;color:var(--red);margin-bottom:8px}
 .card-body h3{font-size:20px;font-weight:600;letter-spacing:-0.4px;margin-bottom:8px}
 .card-body p{font-size:14px;color:var(--t2);line-height:1.6;margin-bottom:16px}
-
-.card-footer{
-  display:flex;align-items:center;justify-content:space-between;
-}
-.card-link{
-  font-family:var(--en);font-size:13px;font-weight:600;
-  color:var(--red);display:flex;align-items:center;gap:6px;
-}
-.card-arrow{
-  transition:all 0.2s var(--ease);opacity:0.6;
-}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.card-link{font-family:var(--en);font-size:13px;font-weight:600;color:var(--red);display:flex;align-items:center;gap:6px}
+.card-arrow{transition:all 0.2s var(--ease);opacity:0.6}
 .card-tech{display:flex;gap:6px;flex-wrap:wrap}
-.card-tech span{
-  padding:3px 8px;border-radius:6px;font-size:11px;
-  background:var(--glass);color:var(--t3);border:1px solid var(--border);
-  font-family:var(--en);font-weight:500;
-}
+.card-tech span{padding:3px 8px;border-radius:6px;font-size:11px;background:var(--glass);color:var(--t3);border:1px solid var(--border);font-family:var(--en);font-weight:500}
 
-/* ═════════════════════ STATS BAR ═════════════════════ */
-.stats{
-  display:flex;justify-content:center;gap:48px;flex-wrap:wrap;
-  padding:40px 24px 80px;max-width:800px;margin:0 auto;
-}
-.stat{text-align:center}
-.stat-val{
-  font-family:var(--en);font-size:36px;font-weight:700;
-  letter-spacing:-1px;color:var(--text);
-}
-.stat-label{font-size:13px;color:var(--t3);margin-top:4px}
+/* SHOWCASE */
+.showcase{padding:80px 24px}
+.showcase-scroll{display:flex;gap:20px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:4px 0 20px;scrollbar-width:none;max-width:900px;margin:0 auto}
+.showcase-scroll::-webkit-scrollbar{display:none}
+.showcase-card{flex:0 0 260px;background:var(--bg2);border:1px solid var(--border);border-radius:16px;overflow:hidden;transition:all 0.3s var(--ease)}
+.showcase-card:hover{transform:translateY(-2px);border-color:var(--border-on)}
+.showcase-pair{display:flex;height:160px}
+.showcase-half{flex:1;display:flex;align-items:center;justify-content:center;font-family:var(--en);font-size:10px;font-weight:600;letter-spacing:0.3px;color:rgba(255,255,255,0.7);text-transform:uppercase}
+.showcase-half.before{background:linear-gradient(135deg,#2a2a2e 0%,#1a1a1e 100%)}
+.showcase-half.after{position:relative}
+.showcase-half.after::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(213,0,50,0.15),rgba(0,0,0,0))}
+.sc-label{padding:14px 16px}
+.sc-label span{font-family:var(--en);font-size:10px;font-weight:600;letter-spacing:0.4px;text-transform:uppercase;color:var(--red)}
+.sc-label p{font-size:13px;color:var(--t2);margin-top:4px}
 
-/* ═════════════════════ FOOTER ═════════════════════ */
-footer{
-  padding:40px 24px;text-align:center;
-  border-top:1px solid var(--border);
-}
+/* ABOUT */
+.about{padding:80px 24px;max-width:900px;margin:0 auto}
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start}
+.about-text h3{font-size:22px;font-weight:600;letter-spacing:-0.4px;margin-bottom:16px}
+.about-text p{font-size:15px;color:var(--t2);line-height:1.8}
+.about-features{display:flex;flex-direction:column;gap:24px}
+.about-feat{display:flex;gap:14px;align-items:flex-start}
+.about-feat-icon{width:40px;height:40px;border-radius:10px;background:var(--red-glow);border:1px solid rgba(213,0,50,0.25);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px}
+.about-feat-text h4{font-size:14px;font-weight:600;margin-bottom:4px}
+.about-feat-text p{font-size:13px;color:var(--t2);line-height:1.5}
+
+/* FOOTER */
+footer{padding:40px 24px;text-align:center;border-top:1px solid var(--border)}
 footer p{font-size:13px;color:var(--t3)}
 footer a{color:var(--red);transition:opacity 0.2s}
 footer a:hover{opacity:0.7}
 
-/* ═════════════════════ RESPONSIVE ═════════════════════ */
+/* RESPONSIVE */
 @media(max-width:640px){
   .grid{grid-template-columns:1fr}
   .hd-links{display:none}
   .hd-menu{display:flex}
   header{flex-wrap:wrap}
-  .stats{gap:32px}
-  .stat-val{font-size:28px}
+  .about-grid{grid-template-columns:1fr;gap:32px}
+  .showcase-card{flex:0 0 220px}
+  .hero h1{font-size:clamp(32px,8vw,48px)}
 }
-
-/* ═════════════════════ REDUCED MOTION ═════════════════════ */
 @media(prefers-reduced-motion:reduce){
-  *,*::before,*::after{
-    animation-duration:0.01ms!important;
-    animation-iteration-count:1!important;
-    transition-duration:0.01ms!important;
-    scroll-behavior:auto!important;
-  }
+  *,*::before,*::after{animation-duration:0.01ms!important;animation-iteration-count:1!important;transition-duration:0.01ms!important;scroll-behavior:auto!important}
 }
 </style>
-
-<!-- Theme init: runs synchronously before body renders to prevent FOUC -->
 <script>
 (function(){
   var t=localStorage.getItem('theme')||'dark';
@@ -290,7 +184,7 @@ footer a:hover{opacity:0.7}
   </div>
   <div class="hd-spacer"></div>
   <nav class="hd-links">
-    <a href="#projects">Projects</a>
+    <a class="hd-cta" href="leica-film-sim/index.html">开始使用</a>
     <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank">GitHub</a>
   </nav>
   <button class="hd-menu" id="menuBtn" onclick="toggleMenu()" aria-label="Menu">&#9776;</button>
@@ -298,7 +192,7 @@ footer a:hover{opacity:0.7}
     <span id="themeIcon">&#9790;</span>
   </button>
   <nav class="hd-dropdown" id="dropdown">
-    <a href="#projects" onclick="toggleMenu()">Projects</a>
+    <a href="leica-film-sim/index.html" onclick="toggleMenu()">开始使用</a>
     <a href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank" onclick="toggleMenu()">GitHub</a>
   </nav>
 </header>
@@ -311,8 +205,8 @@ footer a:hover{opacity:0.7}
     <h1>影调一瞬</h1>
     <p>用光影讲述故事。<br>一套面向创作者的在线胶片模拟与视觉工具集。</p>
     <div class="hero-actions">
-      <a class="btn-primary" href="#projects">
-        Explore Tools
+      <a class="btn-primary" href="leica-film-sim/index.html">
+        开始使用
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
       </a>
       <a class="btn-ghost" href="https://github.com/Yishiqihuashengyaozhuo/yingdiao-yishun" target="_blank">
@@ -323,14 +217,13 @@ footer a:hover{opacity:0.7}
   </div>
 </section>
 
-<!-- PROJECTS -->
+<!-- PROJECTS — single card -->
 <section class="section" id="projects">
   <div class="section-title">
     <h2>Projects</h2>
     <p>创作工具集</p>
   </div>
   <div class="grid">
-
     <a class="card" href="leica-film-sim/index.html">
       <div class="card-visual v1">
         <div class="icon">
@@ -344,62 +237,79 @@ footer a:hover{opacity:0.7}
       <div class="card-body">
         <div class="card-tag">Film Simulation</div>
         <h3>影调一瞬 · 徕卡胶片模拟</h3>
-        <p>6种经典胶片风格，实时预览调色，支持自定义预设管理与商业授权导出。</p>
+        <p>6种经典胶片风格，实时预览调色，支持自定义预设管理与导出。</p>
         <div class="card-footer">
-          <div class="card-link">
-            Launch Tool
-            <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
-          </div>
+          <div class="card-link">Launch Tool <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span></div>
           <div class="card-tech"><span>Canvas</span><span>CSS3</span></div>
         </div>
       </div>
     </a>
-
-    <a class="card" href="filmtone/index.html">
-      <div class="card-visual v2">
-        <div class="icon">
-          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="2" width="20" height="20" rx="2.18" ry="2.18"/>
-            <line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/>
-            <line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/>
-            <line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>
-            <line x1="17" y1="17" x2="22" y2="17"/>
-          </svg>
-        </div>
-        <div class="float-badge">Lite</div>
-      </div>
-      <div class="card-body">
-        <div class="card-tag">Film Tone</div>
-        <h3>Filmtone 胶片色调</h3>
-        <p>精简版胶片调色工具，聚焦色彩还原与影调质感的极致表达。</p>
-        <div class="card-footer">
-          <div class="card-link">
-            Launch Tool
-            <span class="card-arrow"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"/><polyline points="7 7 17 7 17 17"/></svg></span>
-          </div>
-          <div class="card-tech"><span>Canvas</span><span>UI/UX</span></div>
-        </div>
-      </div>
-    </a>
-
   </div>
 </section>
 
-<!-- STATS -->
-<div class="stats">
-  <div class="stat">
-    <div class="stat-val">2</div>
-    <div class="stat-label">Creative Tools</div>
+<!-- SHOWCASE -->
+<section class="showcase">
+  <div class="section-title">
+    <h2>Showcase</h2>
+    <p>效果展示</p>
   </div>
-  <div class="stat">
-    <div class="stat-val">6</div>
-    <div class="stat-label">Film Styles</div>
+  <div class="showcase-scroll">
+    <div class="showcase-card">
+      <div class="showcase-pair">
+        <div class="showcase-half before">Before</div>
+        <div class="showcase-half after" style="background:linear-gradient(135deg,#2a1a10 0%,#1a0f08 100%)">After</div>
+      </div>
+      <div class="sc-label"><span>M9 Color</span><p>CCD 油润感 · 暖中间调</p></div>
+    </div>
+    <div class="showcase-card">
+      <div class="showcase-pair">
+        <div class="showcase-half before">Before</div>
+        <div class="showcase-half after" style="background:linear-gradient(135deg,#1a1a1a 0%,#0a0a0a 100%)">After</div>
+      </div>
+      <div class="sc-label"><span>M3 Monochrome</span><p>银盐颗粒 · 影调深邃</p></div>
+    </div>
+    <div class="showcase-card">
+      <div class="showcase-pair">
+        <div class="showcase-half before">Before</div>
+        <div class="showcase-half after" style="background:linear-gradient(135deg,#2a1818 0%,#1a1010 100%)">After</div>
+      </div>
+      <div class="sc-label"><span>Portra 400</span><p>柔和暖色 · 肤色优化</p></div>
+    </div>
   </div>
-  <div class="stat">
-    <div class="stat-val">v3.0</div>
-    <div class="stat-label">Latest Release</div>
+</section>
+
+<!-- ABOUT -->
+<section class="about">
+  <div class="about-grid">
+    <div class="about-text">
+      <h3>关于影调一瞬</h3>
+      <p>我们相信好的色彩不需要复杂参数。影调一瞬把专业胶片调色浓缩为一次点击，让每张照片都能拥有徕卡般的光影质感——纯粹、克制、有温度。</p>
+    </div>
+    <div class="about-features">
+      <div class="about-feat">
+        <div class="about-feat-icon">&#128274;</div>
+        <div class="about-feat-text">
+          <h4>纯本地处理</h4>
+          <p>所有计算在浏览器内完成，照片不会上传到任何服务器。</p>
+        </div>
+      </div>
+      <div class="about-feat">
+        <div class="about-feat-icon">&#127912;</div>
+        <div class="about-feat-text">
+          <h4>6 种胶片风格</h4>
+          <p>从 CCD 色彩到经典黑白，覆盖主流胶片影调。</p>
+        </div>
+      </div>
+      <div class="about-feat">
+        <div class="about-feat-icon">&#128190;</div>
+        <div class="about-feat-text">
+          <h4>支持预设保存</h4>
+          <p>自定义参数一键存储，随时调用你的专属调色方案。</p>
+        </div>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 
 <!-- FOOTER -->
 <footer>
